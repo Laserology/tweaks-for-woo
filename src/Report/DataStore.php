@@ -47,30 +47,28 @@ class DataStore {
 		if ( ! is_null( $location_field ) ) {
 			$orders = wc_get_orders(
 				array(
-					'status' => array(
+					'date_query' => array(
+						'relation' => 'AND',
 						array(
-							'field'     => 'status',
-			'value'     => array( 'wc-completed', 'wc-processing' ),
-							  'compare'   => '=',
-			'type'      => 'CHAR',
+							'column'  => 'date_created_gmt',
+			'value'     => '>' . $date_from,
+			'compare'   => '>=',
+			'type'      => 'NUMERIC',
+						),
+						array(
+							'field'     => 'date_created_gmt',
+			'value'     => $date_to,
+			'compare'   => '<=',
+			'type'      => 'NUMERIC',
 						),
 					),
-		  'date_query' => array(
-			  'relation' => 'AND',
+		  'field_query' => array(
 			  array(
-				  'column'  => 'date_created_gmt',
-		   'value'     => '>' . $date_from,
-		   'compare'   => '>=',
-		   'type'      => 'NUMERIC',
+				  'field'     => 'status',
+		   'value'     => array( 'wc-completed', 'wc-processing' ),
+					'compare'   => '=',
+		   'type'      => 'CHAR',
 			  ),
-			  array(
-				  'field'     => 'date_created_gmt',
-		   'value'     => $date_to,
-		   'compare'   => '<=',
-		   'type'      => 'NUMERIC',
-			  ),
-		  ),
-		  'meta_query' => array(
 			  array(
 				  'field'     => $location_field,
 		   'value'     => array(),
@@ -104,21 +102,6 @@ class DataStore {
 
 		foreach ( $orders as $order ) {
 			$location = $order->{ $field_name };
-			if ( empty( $location ) ) {
-				// Fall back to the store's base address settings.
-				switch ( $field_name ) {
-					case 'billing_state':
-						$location = static::get_base_state();
-						break;
-					case 'billing_city':
-						$location = static::get_base_city();
-						break;
-					default:
-						// For county and other fields, try city as a reasonable default.
-						$location = static::get_base_city();
-						break;
-				}
-			}
 			if ( empty( $location ) ) {
 				$location = 'Unknown';
 			}
@@ -206,27 +189,6 @@ class DataStore {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Get the store's base state code (e.g. 'CA' from 'US:CA').
-	 */
-	public static function get_base_state(): string {
-		$default = get_option( 'woocommerce_default_country', '' );
-		if ( str_contains( $default, ':' ) ) {
-			return substr( $default, strpos( $default, ':' ) + 1 );
-		}
-		return $default;
-	}
-
-	/**
-	 * Get the store's base city.
-	 */
-	public static function get_base_city(): string {
-		if ( class_exists( 'WC_Countries' ) ) {
-			return wc_clean( WC()->countries->get_base_city() );
-		}
-		return '';
 	}
 
 	/**
