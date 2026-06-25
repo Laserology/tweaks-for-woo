@@ -46,28 +46,28 @@ class DataStore {
 
 		if ( ! is_null( $location_field ) ) {
 			$orders = wc_get_orders(
-				array(
-				    'status' => array( 'wc-completed', 'wc-processing' ),
+			    array(
+					'status' => array( 'wc-completed', 'wc-processing' ),
 					'meta_query' => array(
 					    'field'     => $location_field,
 						'value'     => array(),
 						'compare'   => '!=',
-					    'type'      => 'CHAR',
+						'type'      => 'CHAR',
 					),
 					'date_query' => array(
-						'relation' => 'AND',
 						array(
-							'column'  => 'date_created_gmt',
+						    'column'  => 'date_created_gmt',
 							'value'     => '>' . $date_from,
 							'compare'   => '>=',
 							'type'      => 'NUMERIC',
 						),
 						array(
-							'field'     => 'date_created_gmt',
+						    'field'     => 'date_created_gmt',
 							'value'     => $date_to,
 							'compare'   => '<=',
 							'type'      => 'NUMERIC',
 						),
+		                'relation' => 'AND',
 					),
 
 					'relation' => 'AND',
@@ -97,18 +97,18 @@ class DataStore {
 		foreach ( $orders as $order ) {
 			$location = $order->{ $field_name };
 			if ( empty( $location ) ) {
-			    switch( $field_name ) {
+				switch( $field_name ) {
 					case "billing_state":
-					    $location = WC()->countries->get_base_state();
+						$location = WC()->countries->get_base_state();
 						break;
 					case "billing_county":
-					    $location = WC()->countries->get_base_address();
+						$location = WC()->countries->get_base_address();
 						break;
 					case "billing_city":
-					    $location = WC()->countries->get_base_city();
+						$location = WC()->countries->get_base_city();
 						break;
 					default:
-					    $location = 'Unknown';
+						$location = 'Unknown';
 						break;
 				}
 			}
@@ -153,30 +153,20 @@ class DataStore {
 				$orders = wc_get_orders(
 					array(
 					    'status' => array( 'wc-completed', 'wc-processing' ),
-					    'date_query' => array(
-							array(
+						'date_query' => array(
+						    array(
 								'field'     => 'date_created_gmt',
 								'value'     => '>' . strtotime( $from . ' 00:00:00' ),
 								'compare'   => '>=',
 								'type'      => 'NUMERIC',
 							),
 							array(
-								'field'     => 'date_created_gmt',
+							    'field'     => 'date_created_gmt',
 								'value'     => strtotime( $to . ' 23:59:59' ),
 								'compare'   => '<=',
 								'type'      => 'NUMERIC',
 							),
 						),
-						'meta_query' => array(
-							array(
-								'field'     => $field,
-								'value'     => array(),
-								'compare'   => '!=',
-						        'type'      => 'CHAR',
-							 ),
-							 'relation' => 'AND',
-						),
-			            'limit'  => -1,
 					)
 				);
 
@@ -204,23 +194,24 @@ class DataStore {
 
 		$orders = wc_get_orders(
 			array(
-			    'status' => array( 'wc-completed', 'wc-processing' ),
+				'status' => array( 'wc-completed', 'wc-processing' ),
 				'meta_query' => array(
 					array(
-						'field'     => 'date_created_gmt',
-			            'value'     => '>' . $date_from,
+					    'field'     => 'date_created_gmt',
+					    'value'     => '>' . $date_from,
 						'compare'   => '>=',
-			            'type'      => 'NUMERIC',
+						'type'      => 'NUMERIC',
 					),
 					array(
-						'field'     => 'date_created_gmt',
-			            'value'     => $date_to,
+					    'field'     => 'date_created_gmt',
+						'value'     => $date_to,
 						'compare'   => '<=',
-			            'type'      => 'NUMERIC',
+						'type'      => 'NUMERIC',
 					),
 					'relation' => 'AND',
 				),
-			    'limit' => -1,
+				'relation' => 'AND',
+				'limit' => -1,
 			)
 		);
 
