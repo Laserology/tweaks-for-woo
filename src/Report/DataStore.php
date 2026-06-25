@@ -195,7 +195,7 @@ class DataStore {
 		$orders = wc_get_orders(
 			array(
 				'status' => array( 'wc-completed', 'wc-processing' ),
-				'meta_query' => array(
+				'date_query' => array(
 					array(
 					    'field'     => 'date_created_gmt',
 					    'value'     => '>' . $date_from,
