@@ -46,7 +46,8 @@ class DataStore {
 		if ( ! is_null( $location_field ) ) {
 			$sql = $wpdb->prepare(
 				"SELECT {$location_field} AS location,
-					SUM(total_sales) AS total
+					SUM(total_sales) AS total,
+					COUNT(*) AS order_count
 				FROM {$table_orders}
 				WHERE date_created_gmt >= %s
 				  AND date_created_gmt <= %s
@@ -63,9 +64,9 @@ class DataStore {
 
 			return array_map(
 				fn ( $row ) => [
-					'name'    => $row['location'] ?? 'Unknown',
-					'total'   => (float) $row['total'],
-					'orders'  => self::count_orders_for_field( $table_orders, $location_field, $from, $to ),
+					'name'   => $row['location'] ?? 'Unknown',
+					'total'  => (float) $row['total'],
+					'orders' => (int) $row['order_count'],
 				],
 				$rows
 			);
@@ -133,15 +134,6 @@ class DataStore {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Count orders per location group. (Simple pass-through — the count comes from the GROUP BY.)
-	 */
-	private static function count_orders_for_field( string $table, string $field, string $from, string $to ): int {
-		global $wpdb;
-
-		return 0; // Handled inline; placeholder kept for extensibility.
 	}
 
 	/**
