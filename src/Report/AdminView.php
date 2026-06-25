@@ -206,19 +206,19 @@ class AdminView {
 										<td>
 											<?php if ( $row_states ): ?>
 												<strong><?php echo esc_html( $row_states['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo esc_html( wc_price( $row_states['total'] ) ); ?></small>
+												<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_states['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
 											<?php endif; ?>
 										</td>
 										<td>
 											<?php if ( $row_counties ): ?>
 												<strong><?php echo esc_html( $row_counties['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo esc_html( wc_price( $row_counties['total'] ) ); ?></small>
+												<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_counties['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
 											<?php endif; ?>
 										</td>
 										<td>
 											<?php if ( $row_cities ): ?>
 												<strong><?php echo esc_html( $row_cities['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo esc_html( wc_price( $row_cities['total'] ) ); ?></small>
+												<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_cities['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
 											<?php endif; ?>
 										</td>
 									</tr>
@@ -227,7 +227,7 @@ class AdminView {
 									<!-- Grand total footer row -->
 									<tfoot>
 										<tr class="tflc-grand-total-row">
-											<td colspan="3"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-wc' ) ); ?>:</strong> <?php echo esc_html( wc_price( $grand ) ); ?></td>
+											<td colspan="3"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-wc' ) ); ?>:</strong> <?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
 										</tr>
 									</tfoot>
 								</tbody>
@@ -249,14 +249,14 @@ class AdminView {
 									<?php foreach ( $totals as $row ): ?>
 										<tr>
 											<td><strong><?php echo esc_html( $row['name'] ); ?></strong></td>
-											<td class="tflc-amount"><?php echo esc_html( wc_price( $row['total'] ) ); ?></td>
+											<td class="tflc-amount"><?php echo wp_kses( wc_price( $row['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
 										</tr>
 									<?php endforeach; ?>
 								</tbody>
 								<tfoot>
 									<tr class="tflc-grand-total-row">
 										<td><strong><?php echo esc_html( __( 'Total', 'tweaks-for-wc' ) ); ?></strong></td>
-										<td class="tflc-amount"><strong><?php echo esc_html( wc_price( $grand ) ); ?></strong></td>
+										<td class="tflc-amount"><strong><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></strong></td>
 									</tr>
 								</tfoot>
 							</table>

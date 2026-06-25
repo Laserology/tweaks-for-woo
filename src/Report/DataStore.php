@@ -49,20 +49,20 @@ class DataStore {
 			    array(
 					'status' => array( 'wc-completed', 'wc-processing' ),
 					'meta_query' => array(
-					    'field'     => $location_field,
+					    'key'       => $location_field,
 						'value'     => array(),
 						'compare'   => '!=',
 						'type'      => 'CHAR',
 					),
 					'date_query' => array(
 						array(
-						    'column'  => 'date_created_gmt',
-							'value'     => '>' . $date_from,
+						    'column'     => 'date_created_gmt',
+							'value'     => $date_from,
 							'compare'   => '>=',
 							'type'      => 'NUMERIC',
 						),
 						array(
-						    'field'     => 'date_created_gmt',
+						    'column'     => 'date_created_gmt',
 							'value'     => $date_to,
 							'compare'   => '<=',
 							'type'      => 'NUMERIC',
@@ -155,20 +155,20 @@ class DataStore {
 					    'status' => array( 'wc-completed', 'wc-processing' ),
 						'date_query' => array(
 						    array(
-								'field'     => 'date_created_gmt',
+								'column'     => 'date_created_gmt',
 								'value'     => '>' . strtotime( $from . ' 00:00:00' ),
 								'compare'   => '>=',
 								'type'      => 'NUMERIC',
 							),
 							array(
-							    'field'     => 'date_created_gmt',
+							    'column'     => 'date_created_gmt',
 								'value'     => strtotime( $to . ' 23:59:59' ),
 								'compare'   => '<=',
 								'type'      => 'NUMERIC',
 							),
 						),
 						'meta_query' => array(
-						    'field'     => $field,
+						    'key'     => $field,
                             'value'     => array(),
                             'compare'   => '!=',
                             'type'      => 'CHAR',
@@ -205,13 +205,13 @@ class DataStore {
 				'status' => array( 'wc-completed', 'wc-processing' ),
 				'date_query' => array(
 					array(
-					    'field'     => 'date_created_gmt',
+					    'column'     => 'date_created_gmt',
 					    'value'     => '>' . $date_from,
 						'compare'   => '>=',
 						'type'      => 'NUMERIC',
 					),
 					array(
-					    'field'     => 'date_created_gmt',
+					    'column'     => 'date_created_gmt',
 						'value'     => $date_to,
 						'compare'   => '<=',
 						'type'      => 'NUMERIC',
