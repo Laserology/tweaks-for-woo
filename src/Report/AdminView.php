@@ -154,7 +154,7 @@ class AdminView {
 			<div class="tflc-summary">
 				<div class="tflc-summary-card">
 					<span class="tflc-summary-label"><?php esc_html_e( 'Total Revenue', 'tweaks-for-wc' ); ?></span>
-					<span class="tflc-summary-value"><?php echo esc_html( wc_price( $grand ) ); ?></span>
+					<span class="tflc-summary-value"><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ) ) ); ?></span>
 				</div>
 			</div>
 
