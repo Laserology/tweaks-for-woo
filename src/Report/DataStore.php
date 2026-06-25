@@ -1,6 +1,11 @@
 <?php
 /**
  * Data Store: aggregates order totals by billing location.
+ *
+ * Uses wc_get_orders() with field_query for HPOS-compatible order fetching.
+ * Aggregation is performed in PHP since wc_get_orders() returns individual orders,
+ * not aggregated results. This is the recommended approach over direct SQL queries
+ * per WooCommerce best practices.
  */
 
 namespace TweaksForWC\Report;
@@ -28,14 +33,10 @@ class DataStore {
 	 * @return array[]
 	 */
 	public static function get_totals( string $group_by, string $from, string $to ): array {
-		global $wpdb;
 
-		$table_orders  = $wpdb->prefix . 'wc_order_stats';
+		$date_from = strtotime( $from . ' 00:00:00' );
+		$date_to   = strtotime( $to . ' 23:59:59' );
 
-		$date_from = esc_sql( $from );
-		$date_to   = esc_sql( $to );
-
-		// Build the SQL for a single group-by query (state, county, or city).
 		$location_field = match ( $group_by ) {
 			self::GROUP_STATE  => 'billing_state',
 			self::GROUP_COUNTY => 'billing_county',
@@ -44,36 +45,102 @@ class DataStore {
 		};
 
 		if ( ! is_null( $location_field ) ) {
-			$sql = $wpdb->prepare(
-				"SELECT {$location_field} AS location,
-					SUM(total_sales) AS total,
-					COUNT(*) AS order_count
-				FROM {$table_orders}
-				WHERE date_created_gmt >= %s
-				  AND date_created_gmt <= %s
-				  AND status IN (%s,%s)
-				GROUP BY {$location_field}
-				ORDER BY total DESC",
-				$date_from . ' 00:00:00',
-				$date_to . ' 23:59:59',
-				'wc-completed',
-				'wc-processing'
+			$orders = wc_get_orders(
+				array(
+					'status' => array(
+						array(
+							'field'     => 'status',
+			'value'     => array( 'wc-completed', 'wc-processing' ),
+							  'compare'   => '=',
+			'type'      => 'CHAR',
+						),
+					),
+		  'date_query' => array(
+			  'relation' => 'AND',
+			  array(
+				  'column'  => 'date_created_gmt',
+		   'value'     => '>' . $date_from,
+		   'compare'   => '>=',
+		   'type'      => 'NUMERIC',
+			  ),
+			  array(
+				  'field'     => 'date_created_gmt',
+		   'value'     => $date_to,
+		   'compare'   => '<=',
+		   'type'      => 'NUMERIC',
+			  ),
+		  ),
+		  'meta_query' => array(
+			  array(
+				  'field'     => $location_field,
+		   'value'     => array(),
+					'compare'   => '!=',
+		   'type'      => 'CHAR',
+			  ),
+			  'relation' => 'AND',
+		  ),
+		  'limit'  => -1,
+		  'orderby' => 'date',
+		  'order'   => 'DESC',
+				)
 			);
 
-			$rows = $wpdb->get_results( $sql, ARRAY_A );
-
-			return array_map(
-				fn ( $row ) => [
-					'name'   => $row['location'] ?? 'Unknown',
-					'total'  => (float) $row['total'],
-					'orders' => (int) $row['order_count'],
-				],
-				$rows
-			);
+			return static::aggregate_orders( $orders, $location_field );
 		}
 
 		// GROUP BY all — return one row with a "Total" label plus the three columns.
 		return static::get_combined_totals( $from, $to );
+	}
+
+	/**
+	 * Aggregate orders by a location field in PHP.
+	 *
+	 * @param array<WC_Order> $orders     The fetched orders.
+	 * @param string          $field_name The billing field to group by.
+	 * @return array[]
+	 */
+	private static function aggregate_orders( array $orders, string $field_name ): array {
+		$aggregated = array();
+
+		foreach ( $orders as $order ) {
+			$location = $order->{ $field_name };
+			if ( empty( $location ) ) {
+				// Fall back to the store's base address settings.
+				switch ( $field_name ) {
+					case 'billing_state':
+						$location = static::get_base_state();
+						break;
+					case 'billing_city':
+						$location = static::get_base_city();
+						break;
+					default:
+						// For county and other fields, try city as a reasonable default.
+						$location = static::get_base_city();
+						break;
+				}
+			}
+			if ( empty( $location ) ) {
+				$location = 'Unknown';
+			}
+
+			if ( ! isset( $aggregated[ $location ] ) ) {
+				$aggregated[ $location ] = array(
+					'name'   => $location,
+					'total'  => 0.0,
+					'orders' => 0,
+				);
+			}
+
+			$aggregated[ $location ]['total']  += (float) $order->get_total();
+			$aggregated[ $location ]['orders'] += 1;
+		}
+
+		// Sort by total descending.
+		uasort( $aggregated, function ( $a, $b ) {
+			return $b['total'] <=> $a['total'];
+		});
+
+		return array_values( $aggregated );
 	}
 
 	/**
@@ -82,17 +149,9 @@ class DataStore {
 	 * @return array[]
 	 */
 	private static function get_combined_totals( string $from, string $to ): array {
-		global $wpdb;
+		$result = array();
 
-		$table_orders = $wpdb->prefix . 'wc_order_stats';
-
-		$date_from = esc_sql( $from );
-		$date_to   = esc_sql( $to );
-
-		// Fetch three aggregates in one pass per level.
-		$result = [];
-
-		foreach ( [ self::GROUP_STATE, self::GROUP_COUNTY, self::GROUP_CITY ] as $level ) {
+		foreach ( array( self::GROUP_STATE, self::GROUP_COUNTY, self::GROUP_CITY ) as $level ) {
 			$field = match ( $level ) {
 				self::GROUP_STATE  => 'billing_state',
 				self::GROUP_COUNTY => 'billing_county',
@@ -101,34 +160,47 @@ class DataStore {
 			};
 
 			if ( ! is_null( $field ) ) {
-				$sql = $wpdb->prepare(
-					"SELECT {$field} AS location,
-						SUM(total_sales) AS total,
-						COUNT(*) AS order_count
-					FROM {$table_orders}
-					WHERE date_created_gmt >= %s
-					  AND date_created_gmt <= %s
-					  AND status IN (%s,%s)
-					GROUP BY {$field}
-					ORDER BY total DESC",
-					$date_from . ' 00:00:00',
-					$date_to . ' 23:59:59',
-					'wc-completed',
-					'wc-processing'
+				$orders = wc_get_orders(
+					array(
+						'field_query' => array(
+							array(
+								'field'     => 'date_created_gmt',
+			 'value'     => '>' . strtotime( $from . ' 00:00:00' ),
+								  'compare'   => '>=',
+			 'type'      => 'NUMERIC',
+							),
+							 array(
+								 'field'     => 'date_created_gmt',
+			  'value'     => strtotime( $to . ' 23:59:59' ),
+								   'compare'   => '<=',
+			  'type'      => 'NUMERIC',
+							 ),
+							 array(
+								 'field'     => 'status',
+			  'value'     => array( 'wc-completed', 'wc-processing' ),
+								   'compare'   => '=',
+			  'type'      => 'CHAR',
+							 ),
+							 array(
+								 'field'     => $field,
+			  'value'     => array(),
+								   'compare'   => '!=',
+			  'type'      => 'CHAR',
+							 ),
+							 'relation' => 'AND',
+						),
+		   'limit'  => -1,
+					)
 				);
 
-				foreach ( $wpdb->get_results( $sql, ARRAY_A ) as $row ) {
-					$result[] = [
-						'name'      => $row['location'] ?? 'Unknown',
-						'total'     => (float) $row['total'],
-						'orders'    => (int) $row['order_count'],
-						'level'     => match ( $level ) {
-							self::GROUP_STATE  => 'state',
-							self::GROUP_COUNTY => 'county',
-							self::GROUP_CITY   => 'city',
-							default            => null,
-						},
-					];
+				foreach ( static::aggregate_orders( $orders, $field ) as $entry ) {
+					$entry['level'] = match ( $level ) {
+						self::GROUP_STATE  => 'state',
+						self::GROUP_COUNTY => 'county',
+						self::GROUP_CITY   => 'city',
+						default            => null,
+					};
+					$result[] = $entry;
 				}
 			}
 		}
@@ -137,25 +209,66 @@ class DataStore {
 	}
 
 	/**
+	 * Get the store's base state code (e.g. 'CA' from 'US:CA').
+	 */
+	public static function get_base_state(): string {
+		$default = get_option( 'woocommerce_default_country', '' );
+		if ( str_contains( $default, ':' ) ) {
+			return substr( $default, strpos( $default, ':' ) + 1 );
+		}
+		return $default;
+	}
+
+	/**
+	 * Get the store's base city.
+	 */
+	public static function get_base_city(): string {
+		if ( class_exists( 'WC_Countries' ) ) {
+			return wc_clean( WC()->countries->get_base_city() );
+		}
+		return '';
+	}
+
+	/**
 	 * Get a grand-total across all locations.
 	 */
 	public static function get_grand_total( string $from, string $to ): float {
-		global $wpdb;
+		$date_from = strtotime( $from . ' 00:00:00' );
+		$date_to   = strtotime( $to . ' 23:59:59' );
 
-		$table_orders = $wpdb->prefix . 'wc_order_stats';
-
-		return (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(total_sales) FROM {$table_orders}
-				WHERE date_created_gmt >= %s
-				  AND date_created_gmt <= %s
-				  AND status IN (%s,%s)",
-				$from . ' 00:00:00',
-				$to . ' 23:59:59',
-				'wc-completed',
-				'wc-processing'
+		$orders = wc_get_orders(
+			array(
+				'field_query' => array(
+					array(
+						'field'     => 'date_created_gmt',
+		   'value'     => '>' . $date_from,
+		   'compare'   => '>=',
+		   'type'      => 'NUMERIC',
+					),
+					array(
+						'field'     => 'date_created_gmt',
+		   'value'     => $date_to,
+		   'compare'   => '<=',
+		   'type'      => 'NUMERIC',
+					),
+					array(
+						'field'     => 'status',
+		   'value'     => array( 'wc-completed', 'wc-processing' ),
+						  'compare'   => '=',
+		   'type'      => 'CHAR',
+					),
+					'relation' => 'AND',
+				),
+		 'limit' => -1,
 			)
 		);
+
+		$grand_total = 0.0;
+		foreach ( $orders as $order ) {
+			$grand_total += (float) $order->get_total();
+		}
+
+		return $grand_total;
 	}
 
 	/**
