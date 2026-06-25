@@ -44,22 +44,6 @@ class AdminView {
 	}
 
 	/**
-	 * Enqueue assets for the report page.
-	 */
-	public static function enqueue_assets( string $hook ): void {
-		if ( $hook !== 'toplevel_page_woocommerce' && $hook !== 'woocommerce_page_sales-location-report' ) {
-			return;
-		}
-
-		wp_enqueue_style(
-			'tweaks-for-wc-reports',
-			plugins_url( '../assets/css/reports.css', dirname( __FILE__ ) ),
-			[],
-			'1.0.0'
-		);
-	}
-
-	/**
 	 * Render the report page HTML.
 	 */
 	public static function render_page(): void {
