@@ -51,35 +51,35 @@ class DataStore {
 						'relation' => 'AND',
 						array(
 							'column'  => 'date_created_gmt',
-			'value'     => '>' . $date_from,
-			'compare'   => '>=',
-			'type'      => 'NUMERIC',
+							'value'     => '>' . $date_from,
+							'compare'   => '>=',
+							'type'      => 'NUMERIC',
 						),
 						array(
 							'field'     => 'date_created_gmt',
-			'value'     => $date_to,
-			'compare'   => '<=',
-			'type'      => 'NUMERIC',
+							'value'     => $date_to,
+							'compare'   => '<=',
+							'type'      => 'NUMERIC',
 						),
 					),
-		  'field_query' => array(
-			  array(
-				  'field'     => 'status',
-		   'value'     => array( 'wc-completed', 'wc-processing' ),
-					'compare'   => '=',
-		   'type'      => 'CHAR',
-			  ),
-			  array(
-				  'field'     => $location_field,
-		   'value'     => array(),
-					'compare'   => '!=',
-		   'type'      => 'CHAR',
-			  ),
-			  'relation' => 'AND',
-		  ),
-		  'limit'  => -1,
-		  'orderby' => 'date',
-		  'order'   => 'DESC',
+			        'field_query' => array(
+						array(
+				            'field'     => 'status',
+							'value'     => array( 'wc-completed', 'wc-processing' ),
+							'compare'   => '=',
+				            'type'      => 'CHAR',
+						),
+				        array(
+							'field'     => $location_field,
+				            'value'     => array(),
+							'compare'   => '!=',
+				            'type'      => 'CHAR',
+						),
+				        'relation' => 'AND',
+					),
+        		    'limit'  => -1,
+          		    'orderby' => 'date',
+                    'order'   => 'DESC',
 				)
 			);
 
@@ -148,31 +148,31 @@ class DataStore {
 						'field_query' => array(
 							array(
 								'field'     => 'date_created_gmt',
-			 'value'     => '>' . strtotime( $from . ' 00:00:00' ),
-								  'compare'   => '>=',
-			 'type'      => 'NUMERIC',
+							    'value'     => '>' . strtotime( $from . ' 00:00:00' ),
+								 'compare'   => '>=',
+								'type'      => 'NUMERIC',
 							),
 							 array(
-								 'field'     => 'date_created_gmt',
-			  'value'     => strtotime( $to . ' 23:59:59' ),
-								   'compare'   => '<=',
-			  'type'      => 'NUMERIC',
+								'field'     => 'date_created_gmt',
+						        'value'     => strtotime( $to . ' 23:59:59' ),
+								 'compare'   => '<=',
+								'type'      => 'NUMERIC',
 							 ),
 							 array(
 								 'field'     => 'status',
-			  'value'     => array( 'wc-completed', 'wc-processing' ),
-								   'compare'   => '=',
-			  'type'      => 'CHAR',
+							     'value'     => array( 'wc-completed', 'wc-processing' ),
+								 'compare'   => '=',
+							     'type'      => 'CHAR',
 							 ),
 							 array(
-								 'field'     => $field,
-			  'value'     => array(),
-								   'compare'   => '!=',
-			  'type'      => 'CHAR',
+								'field'     => $field,
+								'value'     => array(),
+								'compare'   => '!=',
+						        'type'      => 'CHAR',
 							 ),
 							 'relation' => 'AND',
 						),
-		   'limit'  => -1,
+			            'limit'  => -1,
 					)
 				);
 
@@ -203,25 +203,25 @@ class DataStore {
 				'field_query' => array(
 					array(
 						'field'     => 'date_created_gmt',
-		   'value'     => '>' . $date_from,
-		   'compare'   => '>=',
-		   'type'      => 'NUMERIC',
+			            'value'     => '>' . $date_from,
+						'compare'   => '>=',
+			            'type'      => 'NUMERIC',
 					),
 					array(
 						'field'     => 'date_created_gmt',
-		   'value'     => $date_to,
-		   'compare'   => '<=',
-		   'type'      => 'NUMERIC',
+			            'value'     => $date_to,
+						'compare'   => '<=',
+			            'type'      => 'NUMERIC',
 					),
 					array(
 						'field'     => 'status',
-		   'value'     => array( 'wc-completed', 'wc-processing' ),
-						  'compare'   => '=',
-		   'type'      => 'CHAR',
+			            'value'     => array( 'wc-completed', 'wc-processing' ),
+						'compare'   => '=',
+			            'type'      => 'CHAR',
 					),
 					'relation' => 'AND',
 				),
-		 'limit' => -1,
+			    'limit' => -1,
 			)
 		);
 
