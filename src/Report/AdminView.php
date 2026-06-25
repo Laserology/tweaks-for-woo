@@ -36,10 +36,10 @@ class AdminView {
 		add_submenu_page(
 			'woocommerce',
 			__( 'Sales Location Report', 'tweaks-for-wc' ),
-			__( 'Sales Location', 'tweaks-for-wc' ),
-			'manage_woocommerce',
-			'sales-location-report',
-			[ __CLASS__, 'render_page' ]
+						 __( 'Sales Location', 'tweaks-for-wc' ),
+						 'manage_woocommerce',
+				   'sales-location-report',
+				   [ __CLASS__, 'render_page' ]
 		);
 	}
 
@@ -103,168 +103,168 @@ class AdminView {
 		?>
 		<div class="wrap tweaks-sales-location-report">
 
-			<h1 class="wp-heading-inline">
-				<?php echo esc_html( __( 'Sales Location Report', 'tweaks-for-wc' ) ); ?>
-			</h1>
+		<h1 class="wp-heading-inline">
+		<?php echo esc_html( __( 'Sales Location Report', 'tweaks-for-wc' ) ); ?>
+		</h1>
 
-			<p class="description">
-				<?php echo esc_html__( 'Aggregated order totals grouped by state, county, and city billing address. Designed for California tax reporting.', 'tweaks-for-wc' ); ?>
-			</p>
+		<p class="description">
+		<?php echo esc_html__( 'Aggregated order totals grouped by state, county, and city billing address. Designed for California tax reporting.', 'tweaks-for-wc' ); ?>
+		</p>
 
-			<hr class="wp-header-end" />
+		<hr class="wp-header-end" />
 
-			<!-- Filters -->
-			<form method="get" action="">
-				<input type="hidden" name="page" value="sales-location-report" />
-				<input type="hidden" name="menu" value="sales-location-report" />
+		<!-- Filters -->
+		<form method="get" action="">
+		<input type="hidden" name="page" value="sales-location-report" />
+		<input type="hidden" name="menu" value="sales-location-report" />
 
-				<div class="tflc-filters">
-					<label>
-						<?php esc_html_e( 'From:', 'tweaks-for-wc' ); ?>
-						<input type="date" name="date_start" value="<?php echo esc_attr( $date_from ); ?>" required />
-					</label>
+		<div class="tflc-filters">
+		<label>
+		<?php esc_html_e( 'From:', 'tweaks-for-wc' ); ?>
+		<input type="date" name="date_start" value="<?php echo esc_attr( $date_from ); ?>" required />
+		</label>
 
-					<label>
-						<?php esc_html_e( 'To:', 'tweaks-for-wc' ); ?>
-						<input type="date" name="date_end" value="<?php echo esc_attr( $date_to ); ?>" required />
-					</label>
+		<label>
+		<?php esc_html_e( 'To:', 'tweaks-for-wc' ); ?>
+		<input type="date" name="date_end" value="<?php echo esc_attr( $date_to ); ?>" required />
+		</label>
 
-					<div class="tflc-quick-range">
-						<span class="dashicons dashicons-calendar" style="margin-right:4px"></span>
-						<?php esc_html_e( 'Quick Range:', 'tweaks-for-wc' ); ?>
-						<select name="range" onchange="this.form.submit()">
-							<option value="" <?php selected( empty( $_GET['range'] ?? '' ), true ); ?>>Custom</option>
-							<option value="7d" <?php selected( isset($_GET['range']) && '7d' === $_GET['range'], true ); ?>>Last 7 Days</option>
-							<option value="30d" <?php selected( isset($_GET['range']) && '30d' === $_GET['range'], true ); ?>>Last 30 Days</option>
-							<option value="90d" <?php selected( isset($_GET['range']) && '90d' === $_GET['range'], true ); ?>>Last 90 Days</option>
-							<option value="this_month" <?php selected( isset($_GET['range']) && 'this_month' === $_GET['range'], true ); ?>>This Month</option>
-							<option value="last_month" <?php selected( isset($_GET['range']) && 'last_month' === $_GET['range'], true ); ?>>Last Month</option>
-							<option value="this_year" <?php selected( isset($_GET['range']) && 'this_year' === $_GET['range'], true ); ?>>This Year</option>
-							<option value="last_year" <?php selected( isset($_GET['range']) && 'last_year' === $_GET['range'], true ); ?>>Last Year</option>
-						</select>
-					</div>
+		<div class="tflc-quick-range">
+		<span class="dashicons dashicons-calendar" style="margin-right:4px"></span>
+		<?php esc_html_e( 'Quick Range:', 'tweaks-for-wc' ); ?>
+		<select name="range" onchange="this.form.submit()">
+		<option value="" <?php selected( empty( $_GET['range'] ?? '' ), true ); ?>>Custom</option>
+		<option value="7d" <?php selected( isset($_GET['range']) && '7d' === $_GET['range'], true ); ?>>Last 7 Days</option>
+		<option value="30d" <?php selected( isset($_GET['range']) && '30d' === $_GET['range'], true ); ?>>Last 30 Days</option>
+		<option value="90d" <?php selected( isset($_GET['range']) && '90d' === $_GET['range'], true ); ?>>Last 90 Days</option>
+		<option value="this_month" <?php selected( isset($_GET['range']) && 'this_month' === $_GET['range'], true ); ?>>This Month</option>
+		<option value="last_month" <?php selected( isset($_GET['range']) && 'last_month' === $_GET['range'], true ); ?>>Last Month</option>
+		<option value="this_year" <?php selected( isset($_GET['range']) && 'this_year' === $_GET['range'], true ); ?>>This Year</option>
+		<option value="last_year" <?php selected( isset($_GET['range']) && 'last_year' === $_GET['range'], true ); ?>>Last Year</option>
+		</select>
+		</div>
 
-					<button type="submit" class="button button-primary">
-						<?php esc_html_e( 'Get Report', 'tweaks-for-wc' ); ?>
-					</button>
-				</div>
-			</form>
+		<button type="submit" class="button button-primary">
+		<?php esc_html_e( 'Get Report', 'tweaks-for-wc' ); ?>
+		</button>
+		</div>
+		</form>
 
-			<!-- Summary Card -->
-			<div class="tflc-summary">
-				<div class="tflc-summary-card">
-					<span class="tflc-summary-label"><?php esc_html_e( 'Total Revenue', 'tweaks-for-wc' ); ?></span>
-					<span class="tflc-summary-value"><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ) ) ); ?></span>
-				</div>
-			</div>
+		<!-- Summary Card -->
+		<div class="tflc-summary">
+		<div class="tflc-summary-card">
+		<span class="tflc-summary-label"><?php esc_html_e( 'Total Revenue', 'tweaks-for-wc' ); ?></span>
+		<span class="tflc-summary-value"><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array() ) ); ?></span>
+		</div>
+		</div>
 
-			<!-- Tabs -->
-			<h2 class="nav-tab-wrapper">
-				<?php foreach ( $tabs as $key => $label ): ?>
-					<a href="<?php echo esc_url( add_query_arg( 'location_level', $key ) ); ?>"
-					   class="nav-tab <?php echo $group_by === $key ? ' nav-tab-active' : ''; ?>">
-						<?php echo esc_html( $label ); ?>
-					</a>
-				<?php endforeach; ?>
-			</h2>
+		<!-- Tabs -->
+		<h2 class="nav-tab-wrapper">
+		<?php foreach ( $tabs as $key => $label ): ?>
+		<a href="<?php echo esc_url( add_query_arg( 'location_level', $key ) ); ?>"
+		class="nav-tab <?php echo $group_by === $key ? ' nav-tab-active' : ''; ?>">
+		<?php echo esc_html( $label ); ?>
+		</a>
+		<?php endforeach; ?>
+		</h2>
 
-			<!-- Tab Content -->
-			<div class="tflc-tab-content">
+		<!-- Tab Content -->
+		<div class="tflc-tab-content">
 
-				<?php if ( empty( $totals ) ): ?>
-					<p class="description">
-						<?php esc_html_e( 'No orders found for the selected period.', 'tweaks-for-wc' ); ?>
-					</p>
-				<?php else: ?>
+		<?php if ( empty( $totals ) ): ?>
+		<p class="description">
+		<?php esc_html_e( 'No orders found for the selected period.', 'tweaks-for-wc' ); ?>
+		</p>
+		<?php else: ?>
 
-					<?php if ( $group_by === 'all' ): ?>
-						<!-- Combined table: State | County | City -->
-						<h3><?php esc_html_e( 'Combined Breakdown', 'tweaks-for-wc' ); ?></h3>
-						<div class="tflc-table-wrapper">
-							<table class="wp-list-table widefat striped">
-								<thead>
-									<tr>
-										<th style="width:33%"><?php esc_html_e( 'State', 'tweaks-for-wc' ); ?></th>
-										<th style="width:33%"><?php esc_html_e( 'County', 'tweaks-for-wc' ); ?></th>
-										<th style="width:33%"><?php esc_html_e( 'City', 'tweaks-for-wc' ); ?></th>
-									</tr>
-								</thead>
-								<tbody>
-									<?php
-									$states_list  = array_filter( $totals, fn( $r ) => $r['level'] === 'state' );
-									$counties_list = array_filter( $totals, fn( $r ) => $r['level'] === 'county' );
-									$cities_list  = array_filter( $totals, fn( $r ) => $r['level'] === 'city' );
+		<?php if ( $group_by === 'all' ): ?>
+		<!-- Combined table: State | County | City -->
+		<h3><?php esc_html_e( 'Combined Breakdown', 'tweaks-for-wc' ); ?></h3>
+		<div class="tflc-table-wrapper">
+		<table class="wp-list-table widefat striped">
+		<thead>
+		<tr>
+		<th style="width:33%"><?php esc_html_e( 'State', 'tweaks-for-wc' ); ?></th>
+		<th style="width:33%"><?php esc_html_e( 'County', 'tweaks-for-wc' ); ?></th>
+		<th style="width:33%"><?php esc_html_e( 'City', 'tweaks-for-wc' ); ?></th>
+		</tr>
+		</thead>
+		<tbody>
+		<?php
+		$states_list  = array_filter( $totals, fn( $r ) => $r['level'] === 'state' );
+		$counties_list = array_filter( $totals, fn( $r ) => $r['level'] === 'county' );
+		$cities_list  = array_filter( $totals, fn( $r ) => $r['level'] === 'city' );
 
-									$max_rows = max( count( $states_list ), count( $counties_list ), count( $cities_list ), 1 );
+		$max_rows = max( count( $states_list ), count( $counties_list ), count( $cities_list ), 1 );
 
-									for ( $i = 0; $i < $max_rows; $i++ ):
-										$row_states  = $states_list[ $i ] ?? null;
-										$row_counties = $counties_list[ $i ] ?? null;
-										$row_cities   = $cities_list[ $i ] ?? null;
-									?>
-									<tr>
-										<td>
-											<?php if ( $row_states ): ?>
-												<strong><?php echo esc_html( $row_states['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo esc_html( wc_price( $row_states['total'] ) ); ?></small>
-											<?php endif; ?>
-										</td>
-										<td>
-											<?php if ( $row_counties ): ?>
-												<strong><?php echo esc_html( $row_counties['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo esc_html( wc_price( $row_counties['total'] ) ); ?></small>
-											<?php endif; ?>
-										</td>
-										<td>
-											<?php if ( $row_cities ): ?>
-												<strong><?php echo esc_html( $row_cities['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo esc_html( wc_price( $row_cities['total'] ) ); ?></small>
-											<?php endif; ?>
-										</td>
-									</tr>
-									<?php endfor; ?>
+		for ( $i = 0; $i < $max_rows; $i++ ):
+			$row_states  = $states_list[ $i ] ?? null;
+		$row_counties = $counties_list[ $i ] ?? null;
+		$row_cities   = $cities_list[ $i ] ?? null;
+		?>
+		<tr>
+		<td>
+		<?php if ( $row_states ): ?>
+		<strong><?php echo esc_html( $row_states['name'] ); ?></strong><br />
+		<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_states['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array() ) ); ?></small>
+		<?php endif; ?>
+		</td>
+		<td>
+		<?php if ( $row_counties ): ?>
+		<strong><?php echo esc_html( $row_counties['name'] ); ?></strong><br />
+		<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_counties['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array() ) ); ?></small>
+		<?php endif; ?>
+		</td>
+		<td>
+		<?php if ( $row_cities ): ?>
+		<strong><?php echo esc_html( $row_cities['name'] ); ?></strong><br />
+		<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_cities['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array() ) ); ?></small>
+		<?php endif; ?>
+		</td>
+		</tr>
+		<?php endfor; ?>
 
-									<!-- Grand total footer row -->
-									<tfoot>
-										<tr class="tflc-grand-total-row">
-											<td colspan="3"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-wc' ) ); ?>:</strong> <?php echo esc_html( wc_price( $grand ) ); ?></td>
-										</tr>
-									</tfoot>
-								</tbody>
-							</table>
-						</div>
+		<!-- Grand total footer row -->
+		<tfoot>
+		<tr class="tflc-grand-total-row">
+		<td colspan="3"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-wc' ) ); ?>:</strong> <?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array() ) ); ?></td>
+		</tr>
+		</tfoot>
+		</tbody>
+		</table>
+		</div>
 
-					<?php else: ?>
-						<!-- Single level table -->
-						<h3><?php echo esc_html( ucwords( str_replace( '_', ' ', $group_by ) ) ); ?></h3>
-						<div class="tflc-table-wrapper">
-							<table class="wp-list-table widefat striped">
-								<thead>
-									<tr>
-										<th><?php echo esc_html( $group_by === 'state' ? __( 'State', 'tweaks-for-wc' ) : ( $group_by === 'county' ? __( 'County', 'tweaks-for-wc' ) : __( 'City', 'tweaks-for-wc' ) ) ); ?></th>
-										<th><?php esc_html_e( 'Revenue', 'tweaks-for-wc' ); ?></th>
-									</tr>
-								</thead>
-								<tbody>
-									<?php foreach ( $totals as $row ): ?>
-										<tr>
-											<td><strong><?php echo esc_html( $row['name'] ); ?></strong></td>
-											<td class="tflc-amount"><?php echo esc_html( wc_price( $row['total'] ) ); ?></td>
-										</tr>
-									<?php endforeach; ?>
-								</tbody>
-								<tfoot>
-									<tr class="tflc-grand-total-row">
-										<td><strong><?php echo esc_html( __( 'Total', 'tweaks-for-wc' ) ); ?></strong></td>
-										<td class="tflc-amount"><strong><?php echo esc_html( wc_price( $grand ) ); ?></strong></td>
-									</tr>
-								</tfoot>
-							</table>
-						</div>
-					<?php endif; ?>
+		<?php else: ?>
+		<!-- Single level table -->
+		<h3><?php echo esc_html( ucwords( str_replace( '_', ' ', $group_by ) ) ); ?></h3>
+		<div class="tflc-table-wrapper">
+		<table class="wp-list-table widefat striped">
+		<thead>
+		<tr>
+		<th><?php echo esc_html( $group_by === 'state' ? __( 'State', 'tweaks-for-wc' ) : ( $group_by === 'county' ? __( 'County', 'tweaks-for-wc' ) : __( 'City', 'tweaks-for-wc' ) ) ); ?></th>
+		<th><?php esc_html_e( 'Revenue', 'tweaks-for-wc' ); ?></th>
+		</tr>
+		</thead>
+		<tbody>
+		<?php foreach ( $totals as $row ): ?>
+		<tr>
+		<td><strong><?php echo esc_html( $row['name'] ); ?></strong></td>
+		<td class="tflc-amount"><?php echo wp_kses( wc_price( $row['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array() ) ); ?></td>
+		</tr>
+		<?php endforeach; ?>
+		</tbody>
+		<tfoot>
+		<tr class="tflc-grand-total-row">
+		<td><strong><?php echo esc_html( __( 'Total', 'tweaks-for-wc' ) ); ?></strong></td>
+		<td class="tflc-amount"><strong><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array() ) ); ?></strong></td>
+		</tr>
+		</tfoot>
+		</table>
+		</div>
+		<?php endif; ?>
 
-				<?php endif; ?>
-			</div>
+		<?php endif; ?>
+		</div>
 		</div>
 		<?php
 	}
