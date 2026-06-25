@@ -100,16 +100,16 @@ class DataStore {
 			    switch( $field_name ) {
 					case "billing_state":
 					    $location = WC()->countries->get_base_state();
-					    break;
+						break;
 					case "billing_county":
 					    $location = WC()->countries->get_base_address();
-					    break;
+						break;
 					case "billing_city":
 					    $location = WC()->countries->get_base_city();
-					    break;
+						break;
 					default:
 					    $location = 'Unknown';
-					    break;
+						break;
 				}
 			}
 
@@ -168,7 +168,7 @@ class DataStore {
 							),
 						),
 						'meta_query' => array(
-							 array(
+							array(
 								'field'     => $field,
 								'value'     => array(),
 								'compare'   => '!=',
