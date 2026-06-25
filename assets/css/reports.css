@@ -1,0 +1,158 @@
+/**
+ * Sales Location Report — Admin Styles
+ *
+ * Styles the report page to match WooCommerce's design language.
+ */
+
+/* ---------- Filters bar ---------- */
+.tflc-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: flex-end;
+	margin: 20px 0;
+	padding: 16px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left-width: 4px;
+	box-shadow: 0 1px 1px rgba( 0, 0, 0, .04 );
+}
+
+.tflc-filters label {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #2c3338;
+	line-height: 1.4;
+}
+
+.tflc-filters input[type="date"] {
+	padding: 5px 8px;
+	font-size: 13px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+	color: #2c3338;
+}
+
+.tflc-filters input[type="date"]:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+.tflc-quick-range {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #2c3338;
+	padding-bottom: 4px;
+}
+
+.tflc-quick-range select {
+	padding: 5px 8px;
+	font-size: 13px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+	color: #2c3338;
+}
+
+.tflc-quick-range select:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	outline: none;
+}
+
+/* ---------- Summary Card ---------- */
+.tflc-summary {
+	margin: 20px 0;
+}
+
+.tflc-summary-card {
+	background: linear-gradient( 135deg, #f6f7f9 0%, #e8eaed 100% );
+	border: 1px solid #c3c4c7;
+	border-left-width: 4px;
+	border-radius: 4px;
+	padding: 20px 24px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.tflc-summary-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: #646970;
+	text-transform: uppercase;
+	letter-spacing: .5px;
+}
+
+.tflc-summary-value {
+	font-size: 28px;
+	font-weight: 700;
+	color: #1d2327;
+}
+
+/* ---------- Tab Content ---------- */
+.tflc-tab-content {
+	margin-top: 16px;
+}
+
+.tflc-tab-content h3 {
+	margin: 16px 0 8px;
+	font-size: 18px;
+}
+
+.tflc-table-wrapper {
+	overflow-x: auto;
+}
+
+/* ---------- Amount cells ---------- */
+.tflc-amount {
+	font-family: monospace, monospace;
+	font-size: 13px;
+	color: #474747;
+	white-space: nowrap;
+}
+
+/* ---------- Grand total row ---------- */
+.tflc-grand-total-row td {
+	background: #f6f7f7;
+	border-top: 2px solid #c3c4c7;
+	padding: 10px 12px !important;
+	font-size: 14px;
+}
+
+/* ---------- Empty / description ---------- */
+.tflc-tab-content .description {
+	font-style: italic;
+	color: #646970;
+	margin-top: 12px;
+}
+
+/* ---------- Responsive ---------- */
+@media ( max-width: 782px ) {
+	.tflc-filters {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.tflc-quick-range {
+		padding-bottom: 0;
+	}
+
+	.tflc-summary-card {
+		flex-direction: column;
+		gap: 8px;
+		text-align: center;
+	}
+
+	.tflc-summary-value {
+		font-size: 24px;
+	}
+}
