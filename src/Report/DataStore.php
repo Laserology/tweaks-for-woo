@@ -167,6 +167,14 @@ class DataStore {
 								'type'      => 'NUMERIC',
 							),
 						),
+						'meta_query' => array(
+						    'field'     => $field,
+                            'value'     => array(),
+                            'compare'   => '!=',
+                            'type'      => 'CHAR',
+                        ),
+                        'relation' => 'AND',
+                        'limit'  => -1,
 					)
 				);
 
