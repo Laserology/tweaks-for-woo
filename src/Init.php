@@ -18,7 +18,13 @@ class Init {
 		self::register_autoloader();
 
 		// Hook into WooCommerce menu so our tab appears alongside the default reports.
-		\TweaksForWC\Report\AdminView::register_menu();
+		// Only run if user has selected for it to be enabled.
+        if ( \TweaksForWC\Report\ConfigView::is_ca_tax_screen_enabled() ) {
+            \TweaksForWC\Report\AdminView::register_menu();
+        }
+
+		// Register settings page under WooCommerce → Tweaks.
+		\TweaksForWC\Report\ConfigView::register_menu();
 
 		// Enqueue report styles on the WooCommerce admin pages.
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
