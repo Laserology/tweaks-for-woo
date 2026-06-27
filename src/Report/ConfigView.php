@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class ConfigView {
 
-	const OPTION_KEY                  = 'tweaks_for_wc_force_billing';
+	const BILLING_OPTION_KEY                  = 'tweaks_for_wc_force_billing';
 	const CA_TAX_SCREEN_KEY   = 'tweaks_for_wc_california_tax_screen';
 
 	/**
@@ -40,7 +40,7 @@ class ConfigView {
 	 * Register the plugin options.
 	 */
 	public static function register_settings(): void {
-		register_setting( 'tweaks_for_wc_settings', self::OPTION_KEY, [
+		register_setting( 'tweaks_for_wc_settings', self::BILLING_OPTION_KEY, [
 			'type'              => 'boolean',
 			'default'           => true,
 			'sanitize_callback' => fn( $value ) => (bool) $value,
@@ -57,7 +57,7 @@ class ConfigView {
 	 * Render the settings page HTML.
 	 */
 	public static function render_page(): void {
-		$enabled       = get_option( self::OPTION_KEY, true );
+		$enabled       = get_option( self::BILLING_OPTION_KEY, true );
 		$ca_enabled    = get_option( self::CA_TAX_SCREEN_KEY, true );
 
 		?>
@@ -76,7 +76,7 @@ class ConfigView {
 				<table class="form-table">
 					<tr>
 						<th scope="row">
-							<label for="<?php echo esc_attr( self::OPTION_KEY ); ?>">
+							<label for="<?php echo esc_attr( self::BILLING_OPTION_KEY ); ?>">
 								<?php esc_html_e( 'Apply Store Base Address to Blank Orders', 'tweaks-for-wc' ); ?>
 							</label>
 						</th>
@@ -91,10 +91,10 @@ class ConfigView {
 									) ); ?>
 								</legend>
 								<label>
-									<input type="hidden" name="<?php echo esc_attr( self::OPTION_KEY ); ?>" value="0" />
+									<input type="hidden" name="<?php echo esc_attr( self::BILLING_OPTION_KEY ); ?>" value="0" />
 									<input type="checkbox"
-										id="<?php echo esc_attr( self::OPTION_KEY ); ?>"
-										name="<?php echo esc_attr( self::OPTION_KEY ); ?>"
+										id="<?php echo esc_attr( self::BILLING_OPTION_KEY ); ?>"
+										name="<?php echo esc_attr( self::BILLING_OPTION_KEY ); ?>"
 										value="1"
 										<?php checked( $enabled, true ); ?>
 									/>
@@ -145,7 +145,7 @@ class ConfigView {
 	 * Check whether force-billing is currently enabled.
 	 */
 	public static function is_fba_enabled(): bool {
-		return (bool) get_option( self::OPTION_KEY, true );
+		return (bool) get_option( self::BILLING_OPTION_KEY, true );
 	}
 
 	/**
