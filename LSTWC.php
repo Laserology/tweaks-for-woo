@@ -38,27 +38,36 @@ class LSTWC {
      *
      * This ensures the Woo mobile app always has a billing address on
      * in-person orders, which is required for compliance and records.
+     *
+     * Only applies to orders created by users with 'manage_options' capability.
      */
     public static function force_billing_address( $order_id ) {
-        // Get order object frim ID.
+        // Only proceed if we can positively identify the user as having admin.
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        // Get order object from ID.
         $order = wc_get_order( $order_id );
 
-        // Set order addresses if shipping address is not set.
-        // This should only run if an order is created via the admin menu.
-        if ( ! $order->has_shipping_address() ) {
+        // Avoid setting orders that have information set already.
+        if ( $order && ! $order->has_shipping_address() ) {
+            $countries = WC()->countries;
+
             // Set shipping address.
-            $order->set_shipping_country( WC()->countries->get_base_country() );
-            $order->set_shipping_state( WC()->countries->get_base_state() );
-            $order->set_shipping_city( WC()->countries->get_base_city() );
-            $order->set_shipping_address_1( WC()->countries->get_base_address() );
-            $order->set_shipping_postcode( WC()->countries->get_base_postcode() );
+            $order->set_shipping_country( $countries->get_base_country() );
+            $order->set_shipping_state( $countries->get_base_state() );
+            $order->set_shipping_city( $countries->get_base_city() );
+            $order->set_shipping_address_1( $countries->get_base_address() );
+            $order->set_shipping_postcode( $countries->get_base_postcode() );
 
             // Set billing address.
-            $order->set_billing_country( WC()->countries->get_base_country() );
-            $order->set_billing_state( WC()->countries->get_base_state() );
-            $order->set_billing_city( WC()->countries->get_base_city() );
-            $order->set_billing_address_1( WC()->countries->get_base_address() );
-            $order->set_billing_postcode( WC()->countries->get_base_postcode() );
+            $order->set_billing_country( $countries->get_base_country() );
+            $order->set_billing_state( $countries->get_base_state() );
+            $order->set_billing_city( $countries->get_base_city() );
+            $order->set_billing_address_1( $countries->get_base_address() );
+            $order->set_billing_postcode( $countries->get_base_postcode() );
+
             $order->save();
         }
     }
