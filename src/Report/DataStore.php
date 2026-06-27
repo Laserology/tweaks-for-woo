@@ -34,9 +34,6 @@ class DataStore {
 	 */
 	public static function get_totals( string $group_by, string $from, string $to ): array {
 
-		$date_from = strtotime( $from . ' 00:00:00' );
-		$date_to   = strtotime( $to . ' 23:59:59' );
-
 		$location_field = match ( $group_by ) {
 			self::GROUP_STATE  => 'billing_state',
 			self::GROUP_COUNTY => 'billing_county',
@@ -49,30 +46,15 @@ class DataStore {
 			    array(
 					'status' => array( 'wc-completed', 'wc-processing' ),
 					'meta_query' => array(
-					    'key'       => $location_field,
+				        'key'       => $location_field,
 						'value'     => array(),
 						'compare'   => '!=',
 						'type'      => 'CHAR',
 					),
-					'date_query' => array(
-						array(
-						    'column'     => 'date_created_gmt',
-							'value'     => $date_from,
-							'compare'   => '>=',
-							'type'      => 'NUMERIC',
-						),
-						array(
-						    'column'     => 'date_created_gmt',
-							'value'     => $date_to,
-							'compare'   => '<=',
-							'type'      => 'NUMERIC',
-						),
-		                'relation' => 'AND',
-					),
-
+					'date_created' => $from . '...' . $to,
 					'relation' => 'AND',
-        		    'limit'  => -1,
-          		    'orderby' => 'date',
+					'limit'  => -1,
+					'orderby' => 'date',
                     'order'   => 'DESC',
 				)
 			);
@@ -153,20 +135,7 @@ class DataStore {
 				$orders = wc_get_orders(
 					array(
 					    'status' => array( 'wc-completed', 'wc-processing' ),
-						'date_query' => array(
-						    array(
-								'column'     => 'date_created_gmt',
-								'value'     => '>' . strtotime( $from . ' 00:00:00' ),
-								'compare'   => '>=',
-								'type'      => 'NUMERIC',
-							),
-							array(
-							    'column'     => 'date_created_gmt',
-								'value'     => strtotime( $to . ' 23:59:59' ),
-								'compare'   => '<=',
-								'type'      => 'NUMERIC',
-							),
-						),
+						'date_created' => $from . '...' . $to,
 						'meta_query' => array(
 						    'key'     => $field,
                             'value'     => array(),
@@ -197,27 +166,10 @@ class DataStore {
 	 * Get a grand-total across all locations.
 	 */
 	public static function get_grand_total( string $from, string $to ): float {
-		$date_from = strtotime( $from . ' 00:00:00' );
-		$date_to   = strtotime( $to . ' 23:59:59' );
-
 		$orders = wc_get_orders(
 			array(
 				'status' => array( 'wc-completed', 'wc-processing' ),
-				'date_query' => array(
-					array(
-					    'column'     => 'date_created_gmt',
-					    'value'     => '>' . $date_from,
-						'compare'   => '>=',
-						'type'      => 'NUMERIC',
-					),
-					array(
-					    'column'     => 'date_created_gmt',
-						'value'     => $date_to,
-						'compare'   => '<=',
-						'type'      => 'NUMERIC',
-					),
-					'relation' => 'AND',
-				),
+				'date_created' => $from . '...' . $to,
 				'relation' => 'AND',
 				'limit' => -1,
 			)

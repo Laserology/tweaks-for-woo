@@ -117,6 +117,7 @@ class AdminView {
 			<form method="get" action="">
 				<input type="hidden" name="page" value="sales-location-report" />
 				<input type="hidden" name="menu" value="sales-location-report" />
+				<input type="hidden" name="location_level" value="<?php echo esc_attr( $group_by ); ?>" />
 
 				<div class="tflc-filters">
 					<label>
