@@ -30,7 +30,7 @@ class LSTWC {
         require_once plugin_dir_path( __FILE__ ) . 'src/Init.php';
         \TweaksForWC\Init::boot();
 
-        add_action('woocommerce_new_order', [$this, 'force_billing_address']);
+        add_action('woocommerce_new_order', [$this, 'LSTWC_force_billing_address']);
     }
 
     /**
@@ -41,7 +41,7 @@ class LSTWC {
      *
      * Only applies to orders created by users with 'manage_options' capability.
      */
-    public static function force_billing_address( $order_id ) {
+    public static function LSTWC_force_billing_address( $order_id ) {
         // Only proceed if we can positively identify the user as having admin.
         if ( ! current_user_can( 'manage_options' ) ) {
             return;
