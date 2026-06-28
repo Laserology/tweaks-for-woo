@@ -59,7 +59,7 @@ class ConfigView {
 			'sanitize_callback' => fn( $value ) => (bool) $value,
 		] );
 
-		register_setting( 'tweaks_for_woo_settings', self::CA_TAX_SCREEN_KEY, [
+		register_setting( 'tweaks_for_woo_settings', self::LOCATION_TWEAK_KEY, [
 			'type'              => 'boolean',
 			'default'           => true,
 			'sanitize_callback' => fn( $value ) => (bool) $value,
