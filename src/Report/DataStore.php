@@ -18,15 +18,14 @@ class DataStore {
 	/**
 	 * Supported grouping levels.
 	 */
-	const GROUP_STATE  = 'state';
-	const GROUP_COUNTY = 'county';
-	const GROUP_CITY   = 'city';
-	const GROUP_ALL    = 'all'; // combined rows with state/county/city columns
+	const GROUP_STATE = 'state';
+	const GROUP_CITY  = 'city';
+	const GROUP_ALL   = 'all'; // combined rows with state/city columns
 
 	/**
 	 * Fetch all location-based order totals for a given date range.
 	 *
-	 * @param string $group_by State, county, city, or all.
+	 * @param string $group_by State, city, or all.
 	 * @param string $from     Start date (Y-m-d).
 	 * @param string $to       End date (Y-m-d).
 	 * @return array[]
@@ -35,7 +34,6 @@ class DataStore {
 
 		$location_field = match ( $group_by ) {
 			self::GROUP_STATE  => 'billing_state',
-			self::GROUP_COUNTY => 'billing_county',
 			self::GROUP_CITY   => 'billing_city',
 			default            => null,
 		};
@@ -45,7 +43,7 @@ class DataStore {
 			return static::aggregate_orders( $orders, $location_field );
 		}
 
-		// GROUP BY all — return one row with a "Total" label plus the three columns.
+		// GROUP BY all — return combined rows with state/city columns.
 		return static::get_combined_totals( $from, $to );
 	}
 
@@ -97,20 +95,19 @@ class DataStore {
 	}
 
 	/**
-	 * Get a combined summary: state / county / city breakdown in parallel columns.
+	 * Get a combined summary: state / city breakdown in parallel columns.
 	 *
 	 * @return array[]
 	 */
 	private static function get_combined_totals( string $from, string $to ): array {
 		$result = array();
 
-		foreach ( array( self::GROUP_STATE, self::GROUP_COUNTY, self::GROUP_CITY ) as $level ) {
-			$field = match ( $level ) {
-				self::GROUP_STATE  => 'billing_state',
-				self::GROUP_COUNTY => 'billing_county',
-				self::GROUP_CITY   => 'billing_city',
-				default            => null,
-			};
+		foreach ( array( self::GROUP_STATE, self::GROUP_CITY ) as $level ) {
+		$field = match ( $level ) {
+			self::GROUP_STATE  => 'billing_state',
+			self::GROUP_CITY   => 'billing_city',
+			default            => null,
+		};
 
 			if ( ! is_null( $field ) ) {
 				$orders = static::fetch_orders( $from, $to );
@@ -118,7 +115,6 @@ class DataStore {
 				foreach ( static::aggregate_orders( $orders, $field ) as $entry ) {
 					$entry['level'] = match ( $level ) {
 						self::GROUP_STATE  => 'state',
-						self::GROUP_COUNTY => 'county',
 						self::GROUP_CITY   => 'city',
 						default            => null,
 					};

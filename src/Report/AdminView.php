@@ -50,7 +50,7 @@ class AdminView {
 	 */
 	public static function render_page(): void {
 		// Get filters
-		$group_by = isset( $_GET['location_level'] ) ? sanitize_text_field( wp_unslash( $_GET['location_level'] ) ) : 'all';
+		$group_by = isset( $_GET['location_level'] ) ? sanitize_text_field( wp_unslash( $_GET['location_level'] ) ) : 'city';
 		$date_from = isset( $_GET['date_start'] ) ? sanitize_text_field( wp_unslash( $_GET['date_start'] ) ) : date_i18n( 'Y-m-d', strtotime( '-30 days' ) );
 		$date_to   = isset( $_GET['date_end'] )   ? sanitize_text_field( wp_unslash( $_GET['date_end'] ) )   : date_i18n( 'Y-m-d' );
 
@@ -96,7 +96,6 @@ class AdminView {
 		$tabs = [
 			'all'    => __( 'All Levels', 'tweaks-for-woo' ),
 			'state'  => __( 'By State', 'tweaks-for-woo' ),
-			'county' => __( 'By County', 'tweaks-for-woo' ),
 			'city'   => __( 'By City', 'tweaks-for-woo' ),
 		];
 
@@ -108,7 +107,7 @@ class AdminView {
 			</h1>
 
 			<p class="description">
-				<?php echo esc_html__( 'Aggregated order totals grouped by state, county, and city billing address. Designed for California tax reporting.', 'tweaks-for-woo' ); ?>
+				<?php echo esc_html__( 'Aggregated order totals grouped by state and city billing address. Designed for California tax reporting.', 'tweaks-for-woo' ); ?>
 			</p>
 
 			<hr class="wp-header-end" />
@@ -179,28 +178,25 @@ class AdminView {
 				<?php else: ?>
 
 					<?php if ( $group_by === 'all' ): ?>
-						<!-- Combined table: State | County | City -->
+						<!-- Combined table: State | City -->
 						<h3><?php esc_html_e( 'Combined Breakdown', 'tweaks-for-woo' ); ?></h3>
 						<div class="tflc-table-wrapper">
 							<table class="wp-list-table widefat striped">
 								<thead>
 									<tr>
-										<th style="width:33%"><?php esc_html_e( 'State', 'tweaks-for-woo' ); ?></th>
-										<th style="width:33%"><?php esc_html_e( 'County', 'tweaks-for-woo' ); ?></th>
-										<th style="width:33%"><?php esc_html_e( 'City', 'tweaks-for-woo' ); ?></th>
+										<th style="width:50%"><?php esc_html_e( 'State', 'tweaks-for-woo' ); ?></th>
+										<th style="width:50%"><?php esc_html_e( 'City', 'tweaks-for-woo' ); ?></th>
 									</tr>
 								</thead>
 								<tbody>
 									<?php
 									$states_list  = array_filter( $totals, fn( $r ) => $r['level'] === 'state' );
-									$counties_list = array_filter( $totals, fn( $r ) => $r['level'] === 'county' );
 									$cities_list  = array_filter( $totals, fn( $r ) => $r['level'] === 'city' );
 
-									$max_rows = max( count( $states_list ), count( $counties_list ), count( $cities_list ), 1 );
+									$max_rows = max( count( $states_list ), count( $cities_list ), 1 );
 
 									for ( $i = 0; $i < $max_rows; $i++ ):
 										$row_states  = $states_list[ $i ] ?? null;
-										$row_counties = $counties_list[ $i ] ?? null;
 										$row_cities   = $cities_list[ $i ] ?? null;
 									?>
 									<tr>
@@ -208,12 +204,6 @@ class AdminView {
 											<?php if ( $row_states ): ?>
 												<strong><?php echo esc_html( $row_states['name'] ); ?></strong><br />
 												<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_states['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
-											<?php endif; ?>
-										</td>
-										<td>
-											<?php if ( $row_counties ): ?>
-												<strong><?php echo esc_html( $row_counties['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_counties['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
 											<?php endif; ?>
 										</td>
 										<td>
@@ -228,7 +218,7 @@ class AdminView {
 									<!-- Grand total footer row -->
 									<tfoot>
 										<tr class="tflc-grand-total-row">
-											<td colspan="3"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-woo' ) ); ?>:</strong> <?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
+											<td colspan="2"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-woo' ) ); ?>:</strong> <?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
 										</tr>
 									</tfoot>
 								</tbody>
@@ -242,7 +232,7 @@ class AdminView {
 							<table class="wp-list-table widefat striped">
 								<thead>
 									<tr>
-										<th><?php echo esc_html( $group_by === 'state' ? __( 'State', 'tweaks-for-woo' ) : ( $group_by === 'county' ? __( 'County', 'tweaks-for-woo' ) : __( 'City', 'tweaks-for-woo' ) ) ); ?></th>
+										<th><?php echo esc_html( $group_by === 'state' ? __( 'State', 'tweaks-for-woo' ) : __( 'City', 'tweaks-for-woo' ) ); ?></th>
 										<th><?php esc_html_e( 'Revenue', 'tweaks-for-woo' ); ?></th>
 									</tr>
 								</thead>
