@@ -17,7 +17,8 @@ class ConfigView {
 	const CA_TAX_SCREEN_KEY  = 'tweaks_for_woo_california_tax_screen';
 
 	/**
-	 * Register the settings submenu and handler.
+	 * Register the settings submenu under WooCommerce → Tweaks and hook
+	 * in the settings registration callback.
 	 */
 	public static function register_menu(): void {
 		add_action( 'admin_menu', [ __CLASS__, 'add_submenu_page' ] );
