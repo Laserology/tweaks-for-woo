@@ -16,13 +16,15 @@ Extra tweaks for Woo!
 
 Adds extra options to the store configuration page in the "Tweaks" tab.
 
-You can visit our github page [here!](https://github.com/Laserology/tweaks-for-wc/)
+You can visit our github page [here!](https://github.com/Laserology/tweaks-for-woo/)
+
+Please note that this is only a tool that aims to format your store in a way that works for you. In no way does it ensure compliance with taxes or any other regulatory requirements. By using this software you entirely agree that you understand this and will not attempt to hold us liable for _your_ mistakes or any issues that arrise from the use of this plugin.
 
 == Frequently Asked Questions ==
 
 = How do i install from source? =
 
-- Go to [this link](https://github.com/Laserology/tweaks-for-wc/)
+- Go to [this link](https://github.com/Laserology/tweaks-for-woo/)
 - Click 'Code'
 - Click 'Download as .ZIP'
 - Go to your wordpress plugins page

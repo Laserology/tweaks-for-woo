@@ -59,6 +59,7 @@ class ReportView {
 		$group_by = isset( $_GET['location_level'] ) ? sanitize_text_field( wp_unslash( $_GET['location_level'] ) ) : 'city';
 		$date_from = isset( $_GET['date_start'] ) ? sanitize_text_field( wp_unslash( $_GET['date_start'] ) ) : date_i18n( 'Y-m-d', strtotime( '-30 days' ) );
 		$date_to   = isset( $_GET['date_end'] )   ? sanitize_text_field( wp_unslash( $_GET['date_end'] ) )   : date_i18n( 'Y-m-d' );
+		$ca_only   = isset( $_GET['california_only'] ) && $_GET['california_only'] !== 'no';
 
 		// Handle quick-range buttons
 		if ( isset( $_GET['range'] ) ) {
@@ -95,8 +96,8 @@ class ReportView {
 		}
 
 		// Fetch data
-		$totals  = DataStore::get_totals( $group_by, $date_from, $date_to );
-		$grand   = DataStore::get_grand_total( $date_from, $date_to );
+		$totals  = DataStore::get_totals( $group_by, $date_from, $date_to, $ca_only );
+		$grand   = DataStore::get_grand_total( $date_from, $date_to, $ca_only );
 
 		// Tab labels
 		$tabs = [
@@ -133,6 +134,12 @@ class ReportView {
 					<label>
 						<?php esc_html_e( 'To:', 'tweaks-for-woo' ); ?>
 						<input type="date" name="date_end" value="<?php echo esc_attr( $date_to ); ?>" required />
+					</label>
+
+					<label class="tflc-ca-toggle">
+						<input type="checkbox" name="california_only" value="yes" <?php checked( $ca_only, true ); ?>
+						       onchange="this.form.submit()" />
+						<?php esc_html_e( 'California orders only', 'tweaks-for-woo' ); ?>
 					</label>
 
 					<div class="tflc-quick-range">
