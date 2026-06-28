@@ -58,19 +58,20 @@ class DataStore {
 	 */
 	private static function aggregate_orders( array $orders, string $field_name ): array {
 		$aggregated = array();
+		$countries = WC()->countries;
 
 		foreach ( $orders as $order ) {
 			$location = $order->{ $field_name };
 			if ( empty( $location ) ) {
 				switch( $field_name ) {
 					case "billing_state":
-						$location = WC()->countries->get_base_state();
+						$location = $countries->get_base_state();
 						break;
 					case "billing_city":
-						$location = WC()->countries->get_base_city();
+						$location = $countries->get_base_city();
 						break;
 					default:
-						$location = 'Unknown or Unspecified';
+					    $location = __( 'Unknown or Unspecified', 'tweaks-for-woo' );
 						break;
 				}
 			}

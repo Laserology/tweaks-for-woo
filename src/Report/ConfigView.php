@@ -83,9 +83,7 @@ class ConfigView {
 							<fieldset>
 								<legend class="description">
 									<?php echo wp_kses_post( __(
-										'When enabled, orders created by administrators with blank billing/shipping'
-										. ' addresses will be filled in with the store base address. Disable this to preserve'
-										. ' blank addresses (e.g., for in-person pickups where no shipping is needed).',
+										'When enabled, orders created by administrators with blank billing/shipping addresses will be filled in with the store base address. Disable this to preserve blank addresses.',
 										'tweaks-for-woo'
 									) ); ?>
 								</legend>
@@ -113,8 +111,7 @@ class ConfigView {
 							<fieldset>
 								<legend class="description">
 									<?php echo wp_kses_post( __(
-										'When enabled, the California tax screen will be loaded in the admin view. '
-										. 'Disable this to hide the California tax screen from administrators.',
+										'When enabled, the California tax screen will be loaded in the admin view. Disable this to hide the California tax screen from administrators.',
 										'tweaks-for-woo'
 									) ); ?>
 								</legend>
