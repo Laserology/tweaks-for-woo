@@ -63,11 +63,11 @@ class DataStore {
 		foreach ( $orders as $order ) {
 			$location = $order->{ $field_name };
 			if ( empty( $location ) ) {
-				switch( $field_name ) {
-					case "billing_state":
+				switch ( $field_name ) {
+					case 'billing_state':
 						$location = $countries->get_base_state();
 						break;
-					case "billing_city":
+					case 'billing_city':
 						$location = $countries->get_base_city();
 						break;
 					default:
