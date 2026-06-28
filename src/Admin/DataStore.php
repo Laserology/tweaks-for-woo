@@ -25,12 +25,13 @@ class DataStore {
 	/**
 	 * Fetch all location-based order totals for a given date range.
 	 *
-	 * @param string $group_by State, city, or all.
-	 * @param string $from     Start date (Y-m-d).
-	 * @param string $to       End date (Y-m-d).
+	 * @param string $group_by       State, city, or all.
+	 * @param string $from           Start date (Y-m-d).
+	 * @param string $to             End date (Y-m-d).
+	 * @param bool   $california_only Whether to filter to CA orders only.
 	 * @return array[]
 	 */
-	public static function get_totals( string $group_by, string $from, string $to ): array {
+	public static function get_totals( string $group_by, string $from, string $to, bool $california_only = false ): array {
 
 		$location_field = match ( $group_by ) {
 			self::GROUP_STATE  => 'billing_state',
@@ -39,12 +40,12 @@ class DataStore {
 		};
 
 		if ( ! is_null( $location_field ) ) {
-			$orders = static::fetch_orders( $from, $to );
+			$orders = static::fetch_orders( $from, $to, $california_only );
 			return static::aggregate_orders( $orders, $location_field );
 		}
 
 		// GROUP BY all — return combined rows with state/city columns.
-		return static::get_combined_totals( $from, $to );
+		return static::get_combined_totals( $from, $to, $california_only );
 	}
 
 	/**
@@ -60,18 +61,13 @@ class DataStore {
 
 		foreach ( $orders as $order ) {
 			$location = $order->{ $field_name };
+
 			if ( empty( $location ) ) {
-				switch ( $field_name ) {
-					case 'billing_state':
-						$location = $countries->get_base_state();
-						break;
-					case 'billing_city':
-						$location = $countries->get_base_city();
-						break;
-					default:
-					    $location = __( 'Unknown or Unspecified', 'tweaks-for-woo' );
-						break;
-				}
+			    $location = match ( $field_name ) {
+					'billing_state' => $countries->get_base_state(),
+					'billing_city'  => $countries->get_base_city(),
+					default         => __( 'Unknown or Unspecified', 'tweaks-for-woo' ),
+				};
 			}
 
 			if ( ! isset( $aggregated[ $location ] ) ) {
@@ -99,18 +95,18 @@ class DataStore {
 	 *
 	 * @return array[]
 	 */
-	private static function get_combined_totals( string $from, string $to ): array {
+	private static function get_combined_totals( string $from, string $to, bool $california_only = false ): array {
 		$result = array();
 
 		foreach ( array( self::GROUP_STATE, self::GROUP_CITY ) as $level ) {
-		$field = match ( $level ) {
-			self::GROUP_STATE  => 'billing_state',
-			self::GROUP_CITY   => 'billing_city',
-			default            => null,
-		};
+    		$field = match ( $level ) {
+    			self::GROUP_STATE  => 'billing_state',
+    			self::GROUP_CITY   => 'billing_city',
+    			default            => null,
+    		};
 
 			if ( ! is_null( $field ) ) {
-				$orders = static::fetch_orders( $from, $to );
+				$orders = static::fetch_orders( $from, $to, $california_only );
 
 				foreach ( static::aggregate_orders( $orders, $field ) as $entry ) {
 					$entry['level'] = match ( $level ) {
@@ -133,14 +129,15 @@ class DataStore {
 	 * the specified period, providing a single total revenue figure regardless
 	 * of billing location.
 	 *
-	 * @param string $from Start date (Y-m-d).
-	 * @param string $to   End date (Y-m-d).
+	 * @param string $from            Start date (Y-m-d).
+	 * @param string $to              End date (Y-m-d).
+	 * @param bool   $california_only Whether to filter to CA orders only.
 	 * @return float Grand total as a decimal.
 	 */
-	public static function get_grand_total( string $from, string $to ): float {
+	public static function get_grand_total( string $from, string $to, bool $california_only = false ): float {
 		$grand_total = 0.0;
 
-		foreach ( static::fetch_orders( $from, $to ) as $order ) {
+		foreach ( static::fetch_orders( $from, $to, $california_only ) as $order ) {
 			$grand_total += (float) $order->get_total();
 		}
 
@@ -158,12 +155,24 @@ class DataStore {
 	 * @param string $to   End date (Y-m-d).
 	 * @return array<WC_Order>
 	 */
-	private static function fetch_orders( string $from, string $to ): array {
-		return wc_get_orders( array(
+	private static function fetch_orders( string $from, string $to, bool $california_only = false ): array {
+		$raw = wc_get_orders( array(
 			'status'       => array( 'wc-completed', 'wc-processing' ),
 			'date_created' => $from . '...' . $to,
 			'relation'     => 'AND',
 			'limit'        => -1,
 		) );
+
+		// Filter out OrderRefund objects which lack billing fields.
+		$filter = array_filter( $raw, fn ( $order ) => $order instanceof \WC_Order );
+
+		if ( $california_only ) {
+		    // Filter out non-california orders if selected.
+			// Also includes orders with blank addresses (assumed to be store's base address)
+			return array_filter( $filter, fn ( $order ) => $order->get_billing_state() == 'CA' ||$order->get_billing_state() == '' );
+		}
+		else {
+		    return $filter;
+		}
 	}
 }
