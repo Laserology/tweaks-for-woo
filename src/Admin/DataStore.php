@@ -7,7 +7,7 @@
  * store operates correctly under both legacy post_meta and COT storage.
  */
 
-namespace TweaksForWoo\Report;
+namespace TweaksForWoo\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

@@ -1,9 +1,9 @@
 <?php
 /**
- * Admin View: renders the Sales Location Report in WooCommerce's reports area.
+ * Admin View: renders the Sales Location Report in the WooCommerce tab area.
  */
 
-namespace TweaksForWoo\Report;
+namespace TweaksForWoo\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // phpcs:disable WordPress.Security.NonceVerification.Recommended -- This page only handles GET requests for filtering display data; no state is modified.
 
-class AdminView {
+class ReportView {
 
 	/**
 	 * Register the report as a submenu page under WooCommerce > Reports.

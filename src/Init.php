@@ -17,22 +17,22 @@ class Init {
 	public static function boot(): void {
 		self::register_autoloader();
 
-		if ( \TweaksForWoo\Report\ConfigView::is_location_adjust_enabled() ) {
+		if ( \TweaksForWoo\Admin\ConfigView::is_location_adjust_enabled() ) {
 		    add_filter('woocommerce_adjust_non_base_location_prices', '__return_false');
 		}
 
-		if ( \TweaksForWoo\Report\ConfigView::is_billing_tweak_enabled() ) {
+		if ( \TweaksForWoo\Admin\ConfigView::is_billing_tweak_enabled() ) {
 		    add_action('woocommerce_new_order', [__CLASS__, 'LSTWC_force_billing_address']);
 		}
 
 		// Hook into WooCommerce menu so our tab appears alongside the default reports.
 		// Only run if user has selected for it to be enabled.
-        if ( \TweaksForWoo\Report\ConfigView::is_ca_tax_screen_enabled() ) {
-            \TweaksForWoo\Report\AdminView::register_menu();
+        if ( \TweaksForWoo\Admin\ConfigView::is_ca_tax_screen_enabled() ) {
+            \TweaksForWoo\Admin\ReportView::register_menu();
         }
 
 		// Register settings page under WooCommerce → Tweaks.
-		\TweaksForWoo\Report\ConfigView::register_menu();
+		\TweaksForWoo\Admin\ConfigView::register_menu();
 
 		// Enqueue report styles on the WooCommerce admin pages.
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );

@@ -3,7 +3,7 @@
  * Admin View: renders the Settings page under WooCommerce → Settings.
  */
 
-namespace TweaksForWoo\Report;
+namespace TweaksForWoo\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
