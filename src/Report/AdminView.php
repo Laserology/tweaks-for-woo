@@ -134,14 +134,14 @@ class AdminView {
 						<span class="dashicons dashicons-calendar" style="margin-right:4px"></span>
 						<?php esc_html_e( 'Quick Range:', 'tweaks-for-woo' ); ?>
 						<select name="range" onchange="this.form.submit()">
-							<option value="" <?php selected( empty( $_GET['range'] ?? '' ), true ); ?>><?php esc_html_e( 'Custom', 'tweaks-for-woo' ); ?></option>
-							<option value="7d" <?php selected( isset( $_GET['range'] ) && '7d' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last 7 Days', 'tweaks-for-woo' ); ?></option>
-							<option value="30d" <?php selected( isset( $_GET['range'] ) && '30d' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last 30 Days', 'tweaks-for-woo' ); ?></option>
-							<option value="90d" <?php selected( isset( $_GET['range'] ) && '90d' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last 90 Days', 'tweaks-for-woo' ); ?></option>
-							<option value="this_month" <?php selected( isset( $_GET['range'] ) && 'this_month' === $_GET['range'], true ); ?>><?php esc_html_e( 'This Month', 'tweaks-for-woo' ); ?></option>
-							<option value="last_month" <?php selected( isset( $_GET['range'] ) && 'last_month' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last Month', 'tweaks-for-woo' ); ?></option>
-							<option value="this_year" <?php selected( isset( $_GET['range'] ) && 'this_year' === $_GET['range'], true ); ?>><?php esc_html_e( 'This Year', 'tweaks-for-woo' ); ?></option>
-							<option value="last_year" <?php selected( isset( $_GET['range'] ) && 'last_year' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last Year', 'tweaks-for-woo' ); ?></option>
+							<option value="" <?php selected( empty( $range ), true ); ?>><?php esc_html_e( 'Custom', 'tweaks-for-woo' ); ?></option>
+							<option value="7d" <?php selected( $range === '7d', true ); ?>><?php esc_html_e( 'Last 7 Days', 'tweaks-for-woo' ); ?></option>
+							<option value="30d" <?php selected( $range === '30d', true ); ?>><?php esc_html_e( 'Last 30 Days', 'tweaks-for-woo' ); ?></option>
+							<option value="90d" <?php selected( $range === '90d', true ); ?>><?php esc_html_e( 'Last 90 Days', 'tweaks-for-woo' ); ?></option>
+							<option value="this_month" <?php selected( $range === 'this_month', true ); ?>><?php esc_html_e( 'This Month', 'tweaks-for-woo' ); ?></option>
+							<option value="last_month" <?php selected( $range === 'last_month', true ); ?>><?php esc_html_e( 'Last Month', 'tweaks-for-woo' ); ?></option>
+							<option value="this_year" <?php selected( $range === 'this_year', true ); ?>><?php esc_html_e( 'This Year', 'tweaks-for-woo' ); ?></option>
+							<option value="last_year" <?php selected( $range === 'last_year', true ); ?>><?php esc_html_e( 'Last Year', 'tweaks-for-woo' ); ?></option>
 						</select>
 					</div>
 
