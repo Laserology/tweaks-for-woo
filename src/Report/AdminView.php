@@ -22,7 +22,9 @@ class AdminView {
 	}
 
 	/**
-	 * Link in the WooCommerce Reports tab.
+	 * Add the "Sales Location" link into WooCommerce's built-in menu.
+	 *
+	 * @param array $reports Associative array of slugs to their metadata.
 	 */
 	public static function add_report_link( array &$reports ): void {
 		$reports[ 'sales-location-report' ] = [
@@ -46,7 +48,11 @@ class AdminView {
 	}
 
 	/**
-	 * Render the report page HTML.
+	 * Render the Sales Location Report page, including filters, summary card,
+	 * tabs (All Levels / By State / By City), and the revenue table.
+	 *
+	 * Reads location_level, date_start, date_end, and range query parameters
+	 * to determine which orders to display and how to group them.
 	 */
 	public static function render_page(): void {
 		// Get filters
