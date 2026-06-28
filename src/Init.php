@@ -53,15 +53,11 @@ class Init {
 	}
 
 	/**
-	 * Enqueue admin styles only on our report page.
+	 * Enqueue report styles only on the report page.
 	 */
 	public static function enqueue_assets(): void {
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_styles' ] );
-	}
-
-	private static function enqueue_styles(): void {
 		global $hook_suffix;
-		if ( $hook_suffix !== 'woocommerce_page_sales-location-report' ) {
+		if ( 'sales-location-report' !== basename( $hook_suffix ) ) {
 			return;
 		}
 

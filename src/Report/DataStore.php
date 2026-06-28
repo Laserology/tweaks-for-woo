@@ -2,10 +2,9 @@
 /**
  * Data Store: aggregates order totals by billing location.
  *
- * Uses wc_get_orders() with field_query for HPOS-compatible order fetching.
- * Aggregation is performed in PHP since wc_get_orders() returns individual orders,
- * not aggregated results. This is the recommended approach over direct SQL queries
- * per WooCommerce best practices.
+ * Uses HPOS-compatible wc_get_orders() to fetch orders, then aggregates
+ * in PHP. Blank billing fields are skipped during aggregation so the
+ * store operates correctly under both legacy post_meta and COT storage.
  */
 
 namespace TweaksForWC\Report;
@@ -42,23 +41,7 @@ class DataStore {
 		};
 
 		if ( ! is_null( $location_field ) ) {
-			$orders = wc_get_orders(
-			    array(
-					'status' => array( 'wc-completed', 'wc-processing' ),
-					'meta_query' => array(
-				        'key'       => $location_field,
-						'value'     => array(),
-						'compare'   => '!=',
-						'type'      => 'CHAR',
-					),
-					'date_created' => $from . '...' . $to,
-					'relation' => 'AND',
-					'limit'  => -1,
-					'orderby' => 'date',
-                    'order'   => 'DESC',
-				)
-			);
-
+			$orders = static::fetch_orders( $from, $to );
 			return static::aggregate_orders( $orders, $location_field );
 		}
 
@@ -83,14 +66,11 @@ class DataStore {
 					case "billing_state":
 						$location = WC()->countries->get_base_state();
 						break;
-					case "billing_county":
-						$location = WC()->countries->get_base_address();
-						break;
 					case "billing_city":
 						$location = WC()->countries->get_base_city();
 						break;
 					default:
-						$location = 'Unknown';
+						$location = 'Unknown or Unspecified';
 						break;
 				}
 			}
@@ -132,20 +112,7 @@ class DataStore {
 			};
 
 			if ( ! is_null( $field ) ) {
-				$orders = wc_get_orders(
-					array(
-					    'status' => array( 'wc-completed', 'wc-processing' ),
-						'date_created' => $from . '...' . $to,
-						'meta_query' => array(
-						    'key'     => $field,
-                            'value'     => array(),
-                            'compare'   => '!=',
-                            'type'      => 'CHAR',
-                        ),
-                        'relation' => 'AND',
-                        'limit'  => -1,
-					)
-				);
+				$orders = static::fetch_orders( $from, $to );
 
 				foreach ( static::aggregate_orders( $orders, $field ) as $entry ) {
 					$entry['level'] = match ( $level ) {
@@ -166,17 +133,9 @@ class DataStore {
 	 * Get a grand-total across all locations.
 	 */
 	public static function get_grand_total( string $from, string $to ): float {
-		$orders = wc_get_orders(
-			array(
-				'status' => array( 'wc-completed', 'wc-processing' ),
-				'date_created' => $from . '...' . $to,
-				'relation' => 'AND',
-				'limit' => -1,
-			)
-		);
-
 		$grand_total = 0.0;
-		foreach ( $orders as $order ) {
+
+		foreach ( static::fetch_orders( $from, $to ) as $order ) {
 			$grand_total += (float) $order->get_total();
 		}
 
@@ -184,126 +143,22 @@ class DataStore {
 	}
 
 	/**
-	 * Return the list of US states (California-first for this plugin's focus).
+	 * Fetch orders matching the date range.
+	 *
+	 * Note: location-based blank-value filtering is handled in aggregate_orders()
+	 * because billing fields are stored as COT columns under HPOS, not post meta.
+	 * Filtering in PHP avoids incompatibility with the meta_query approach.
+	 *
+	 * @param string $from Start date (Y-m-d).
+	 * @param string $to   End date (Y-m-d).
+	 * @return array<WC_Order>
 	 */
-	public static function us_states(): array {
-		return [
-			'CA' => 'California',
-			'AL' => 'Alabama',
-			'AK' => 'Alaska',
-			'AZ' => 'Arizona',
-			'AR' => 'Arkansas',
-			'CO' => 'Colorado',
-			'CT' => 'Connecticut',
-			'DE' => 'Delaware',
-			'FL' => 'Florida',
-			'GA' => 'Georgia',
-			'HI' => 'Hawaii',
-			'ID' => 'Idaho',
-			'IL' => 'Illinois',
-			'IN' => 'Indiana',
-			'IA' => 'Iowa',
-			'KS' => 'Kansas',
-			'KY' => 'Kentucky',
-			'LA' => 'Louisiana',
-			'ME' => 'Maine',
-			'MD' => 'Maryland',
-			'MA' => 'Massachusetts',
-			'MI' => 'Michigan',
-			'MN' => 'Minnesota',
-			'MS' => 'Mississippi',
-			'MO' => 'Missouri',
-			'MT' => 'Montana',
-			'NE' => 'Nebraska',
-			'NV' => 'Nevada',
-			'NH' => 'New Hampshire',
-			'NJ' => 'New Jersey',
-			'NM' => 'New Mexico',
-			'NY' => 'New York',
-			'NC' => 'North Carolina',
-			'ND' => 'North Dakota',
-			'OH' => 'Ohio',
-			'OK' => 'Oklahoma',
-			'OR' => 'Oregon',
-			'PA' => 'Pennsylvania',
-			'RI' => 'Rhode Island',
-			'SC' => 'South Carolina',
-			'DC' => 'District of Columbia',
-			'DS' => 'Other / Domestic Territories',
-			'SD' => 'South Dakota',
-			'TN' => 'Tennessee',
-			'TX' => 'Texas',
-			'UT' => 'Utah',
-			'VT' => 'Vermont',
-			'VA' => 'Virginia',
-			'WA' => 'Washington',
-			'WV' => 'West Virginia',
-			'WI' => 'Wisconsin',
-			'WY' => 'Wyoming',
-		];
-	}
-
-	/**
-	 * Return the list of California counties.
-	 */
-	public static function ca_counties(): array {
-		return [
-			'Alameda County',
-			'Alpine County',
-			'Amador County',
-			'Butte County',
-			'Calaveras County',
-			'Colusa County',
-			'Contra Costa County',
-			'Del Norte County',
-			'El Dorado County',
-			'Fresno County',
-			'Glenn County',
-			'Humboldt County',
-			'Imperial County',
-			'Inyo County',
-			'Kern County',
-			'Kings County',
-			'Lake County',
-			'Lassen County',
-			'Los Angeles County',
-			'Madera County',
-			'Marin County',
-			'Mariposa County',
-			'Mendocino County',
-			'Merced County',
-			'Modoc County',
-			'Mono County',
-			'Monterey County',
-			'Napa County',
-			'Nevada County',
-			'Orange County',
-			'Placer County',
-			'Plumas County',
-			'Riverside County',
-			'Sacramento County',
-			'San Benito County',
-			'San Bernardino County',
-			'San Diego County',
-			'San Francisco County',
-			'San Joaquin County',
-			'San Luis Obispo County',
-			'San Mateo County',
-			'Santa Barbara County',
-			'Santa Clara County',
-			'Santa Cruz County',
-			'Siskiyou County',
-			'Solano County',
-			'Sonoma County',
-			'Stanislaus County',
-			'Sutter County',
-			'Tehama County',
-			'Trinity County',
-			'Tulare County',
-			'Tuolumne County',
-			'Ventura County',
-			'Yolo County',
-			'Yuba County',
-		];
+	private static function fetch_orders( string $from, string $to ): array {
+		return wc_get_orders( array(
+			'status'       => array( 'wc-completed', 'wc-processing' ),
+			'date_created' => $from . '...' . $to,
+			'relation'     => 'AND',
+			'limit'        => -1,
+		) );
 	}
 }

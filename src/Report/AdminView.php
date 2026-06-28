@@ -89,8 +89,6 @@ class AdminView {
 		// Fetch data
 		$totals  = DataStore::get_totals( $group_by, $date_from, $date_to );
 		$grand   = DataStore::get_grand_total( $date_from, $date_to );
-		$states  = DataStore::us_states();
-		$counties = DataStore::ca_counties();
 
 		// Tab labels
 		$tabs = [
