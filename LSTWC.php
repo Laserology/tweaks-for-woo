@@ -1,13 +1,13 @@
 <?php /*
 Plugin Name: Tweaks for Woo
-Plugin URI: https://github.com/Laserology/tweaks-for-wc/
+Plugin URI: https://github.com/Laserology/tweaks-for-woo/
 Description: Free tweaks plugin for your woo store.
 License: GPL v2 or later
 Version: 1.1.0
 Author: Laserology
 Author URI: https://laserology.net/
 Requires Plugins: woocommerce
-Text Domain: tweaks-for-wc
+Text Domain: tweaks-for-woo
 */
 
 if ( ! defined('ABSPATH') ) {
@@ -28,7 +28,7 @@ class LSTWC {
 
         // Boot the report submodule.
         require_once plugin_dir_path( __FILE__ ) . 'src/Init.php';
-        \TweaksForWC\Init::boot();
+        \TweaksForWoo\Init::boot();
 
         add_action('woocommerce_new_order', [$this, 'LSTWC_force_billing_address']);
     }

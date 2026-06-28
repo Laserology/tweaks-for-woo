@@ -3,7 +3,7 @@
  * Admin View: renders the Settings page under WooCommerce → Settings.
  */
 
-namespace TweaksForWC\Report;
+namespace TweaksForWoo\Report;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,10 +28,10 @@ class ConfigView {
 	public static function add_submenu_page(): void {
 		add_submenu_page(
 			'woocommerce',
-			__( 'Tweaks for Woo Settings', 'tweaks-for-wc' ),
-			__( 'Tweaks', 'tweaks-for-wc' ),
+			__( 'Tweaks for Woo Settings', 'tweaks-for-woo' ),
+			__( 'Tweaks', 'tweaks-for-woo' ),
 			'manage_woocommerce',
-			'tweaks-for-wc-settings',
+			'tweaks-for-woo-settings',
 			[ __CLASS__, 'render_page' ]
 		);
 	}
@@ -61,10 +61,10 @@ class ConfigView {
 		$ca_enabled    = get_option( self::CA_TAX_SCREEN_KEY, true );
 
 		?>
-		<div class="wrap tweaks-for-wc-settings">
+		<div class="wrap tweaks-for-woo-settings">
 
 			<h1 class="wp-heading-inline">
-				<?php echo esc_html__( 'Tweaks for Woo Settings', 'tweaks-for-wc' ); ?>
+				<?php echo esc_html__( 'Tweaks for Woo Settings', 'tweaks-for-woo' ); ?>
 			</h1>
 
 			<hr class="wp-header-end" />
@@ -76,7 +76,7 @@ class ConfigView {
 					<tr>
 						<th scope="row">
 							<label for="<?php echo esc_attr( self::BILLING_OPTION_KEY ); ?>">
-								<?php esc_html_e( 'Apply Store Base Address to Blank Orders', 'tweaks-for-wc' ); ?>
+								<?php esc_html_e( 'Apply Store Base Address to Blank Orders', 'tweaks-for-woo' ); ?>
 							</label>
 						</th>
 						<td>
@@ -86,7 +86,7 @@ class ConfigView {
 										'When enabled, orders created by administrators with blank billing/shipping'
 										. ' addresses will be filled in with the store base address. Disable this to preserve'
 										. ' blank addresses (e.g., for in-person pickups where no shipping is needed).',
-										'tweaks-for-wc'
+										'tweaks-for-woo'
 									) ); ?>
 								</legend>
 								<label>
@@ -97,7 +97,7 @@ class ConfigView {
 										value="1"
 										<?php checked( $enabled, true ); ?>
 									/>
-									<?php esc_html_e( 'Enabled', 'tweaks-for-wc' ); ?>
+									<?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?>
 								</label>
 							</fieldset>
 						</td>
@@ -106,7 +106,7 @@ class ConfigView {
 					<tr>
 						<th scope="row">
 							<label for="<?php echo esc_attr( self::CA_TAX_SCREEN_KEY ); ?>">
-								<?php esc_html_e( 'Enable California Tax Screen', 'tweaks-for-wc' ); ?>
+								<?php esc_html_e( 'Enable California Tax Screen', 'tweaks-for-woo' ); ?>
 							</label>
 						</th>
 						<td>
@@ -115,7 +115,7 @@ class ConfigView {
 									<?php echo wp_kses_post( __(
 										'When enabled, the California tax screen will be loaded in the admin view. '
 										. 'Disable this to hide the California tax screen from administrators.',
-										'tweaks-for-wc'
+										'tweaks-for-woo'
 									) ); ?>
 								</legend>
 								<label>
@@ -126,7 +126,7 @@ class ConfigView {
 										value="1"
 										<?php checked( $ca_enabled, true ); ?>
 									/>
-									<?php esc_html_e( 'Enabled', 'tweaks-for-wc' ); ?>
+									<?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?>
 								</label>
 							</fieldset>
 						</td>
