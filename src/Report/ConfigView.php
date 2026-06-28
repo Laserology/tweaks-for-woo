@@ -11,8 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class ConfigView {
 
-	const BILLING_OPTION_KEY                  = 'tweaks_for_wc_force_billing';
-	const CA_TAX_SCREEN_KEY   = 'tweaks_for_wc_california_tax_screen';
+    const LOCATION_TWEAK_KEY    = 'tweaks_for_woo_location_adjust';
+	const BILLING_OPTION_KEY    = 'tweaks_for_woo_force_billing';
+	const CA_TAX_SCREEN_KEY     = 'tweaks_for_woo_california_tax_screen';
 
 	/**
 	 * Register the settings submenu and handler.
@@ -40,13 +41,19 @@ class ConfigView {
 	 * Register the plugin options.
 	 */
 	public static function register_settings(): void {
-		register_setting( 'tweaks_for_wc_settings', self::BILLING_OPTION_KEY, [
+		register_setting( 'tweaks_for_woo_settings', self::BILLING_OPTION_KEY, [
 			'type'              => 'boolean',
 			'default'           => true,
 			'sanitize_callback' => fn( $value ) => (bool) $value,
 		] );
 
-		register_setting( 'tweaks_for_wc_settings', self::CA_TAX_SCREEN_KEY, [
+		register_setting( 'tweaks_for_woo_settings', self::CA_TAX_SCREEN_KEY, [
+			'type'              => 'boolean',
+			'default'           => true,
+			'sanitize_callback' => fn( $value ) => (bool) $value,
+		] );
+
+		register_setting( 'tweaks_for_woo_settings', self::CA_TAX_SCREEN_KEY, [
 			'type'              => 'boolean',
 			'default'           => true,
 			'sanitize_callback' => fn( $value ) => (bool) $value,
@@ -57,8 +64,9 @@ class ConfigView {
 	 * Render the settings page HTML.
 	 */
 	public static function render_page(): void {
-		$enabled       = get_option( self::BILLING_OPTION_KEY, true );
-		$ca_enabled    = get_option( self::CA_TAX_SCREEN_KEY, true );
+	    $lo_enabled     = get_option( self::LOCATION_TWEAK_KEY, true );
+		$bi_enabled     = get_option( self::BILLING_OPTION_KEY, true );
+		$ca_enabled     = get_option( self::CA_TAX_SCREEN_KEY, true );
 
 		?>
 		<div class="wrap tweaks-for-woo-settings">
@@ -70,7 +78,7 @@ class ConfigView {
 			<hr class="wp-header-end" />
 
 			<form method="post" action="options.php">
-				<?php settings_fields( 'tweaks_for_wc_settings' ); ?>
+				<?php settings_fields( 'tweaks_for_woo_settings' ); ?>
 
 				<table class="form-table">
 					<tr>
@@ -93,7 +101,7 @@ class ConfigView {
 										id="<?php echo esc_attr( self::BILLING_OPTION_KEY ); ?>"
 										name="<?php echo esc_attr( self::BILLING_OPTION_KEY ); ?>"
 										value="1"
-										<?php checked( $enabled, true ); ?>
+										<?php checked( $bi_enabled, true ); ?>
 									/>
 									<?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?>
 								</label>
@@ -128,6 +136,34 @@ class ConfigView {
 							</fieldset>
 						</td>
 					</tr>
+
+					<tr>
+						<th scope="row">
+							<label for="<?php echo esc_attr( self::LOCATION_TWEAK_KEY ); ?>">
+								<?php esc_html_e( 'Disable price adjusting', 'tweaks-for-woo' ); ?>
+							</label>
+						</th>
+						<td>
+							<fieldset>
+								<legend class="description">
+									<?php echo wp_kses_post( __(
+										'When enabled, Woocommerce will no longer change display prices if "show prices including tax" is enabled.',
+										'tweaks-for-woo'
+									) ); ?>
+								</legend>
+								<label>
+									<input type="hidden" name="<?php echo esc_attr( self::LOCATION_TWEAK_KEY ); ?>" value="0" />
+									<input type="checkbox"
+										id="<?php echo esc_attr( self::LOCATION_TWEAK_KEY ); ?>"
+										name="<?php echo esc_attr( self::LOCATION_TWEAK_KEY ); ?>"
+										value="1"
+										<?php checked( $lo_enabled, true ); ?>
+									/>
+									<?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?>
+								</label>
+							</fieldset>
+						</td>
+					</tr>
 				</table>
 
 				<?php submit_button(); ?>
@@ -137,10 +173,14 @@ class ConfigView {
 		<?php
 	}
 
+	public static function is_location_adjust_enabled(): bool {
+	    return (bool) get_option( self::LOCATION_TWEAK_KEY, true );
+	}
+
 	/**
 	 * Check whether force-billing is currently enabled.
 	 */
-	public static function is_fba_enabled(): bool {
+	public static function is_billing_tweak_enabled(): bool {
 		return (bool) get_option( self::BILLING_OPTION_KEY, true );
 	}
 
