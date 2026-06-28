@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This page only handles GET requests for filtering display data; no state is modified.
+
 class AdminView {
 
 	/**
@@ -132,14 +134,14 @@ class AdminView {
 						<span class="dashicons dashicons-calendar" style="margin-right:4px"></span>
 						<?php esc_html_e( 'Quick Range:', 'tweaks-for-woo' ); ?>
 						<select name="range" onchange="this.form.submit()">
-							<option value="" <?php selected( empty( $_GET['range'] ?? '' ), true ); ?>>Custom</option>
-							<option value="7d" <?php selected( isset($_GET['range']) && '7d' === $_GET['range'], true ); ?>>Last 7 Days</option>
-							<option value="30d" <?php selected( isset($_GET['range']) && '30d' === $_GET['range'], true ); ?>>Last 30 Days</option>
-							<option value="90d" <?php selected( isset($_GET['range']) && '90d' === $_GET['range'], true ); ?>>Last 90 Days</option>
-							<option value="this_month" <?php selected( isset($_GET['range']) && 'this_month' === $_GET['range'], true ); ?>>This Month</option>
-							<option value="last_month" <?php selected( isset($_GET['range']) && 'last_month' === $_GET['range'], true ); ?>>Last Month</option>
-							<option value="this_year" <?php selected( isset($_GET['range']) && 'this_year' === $_GET['range'], true ); ?>>This Year</option>
-							<option value="last_year" <?php selected( isset($_GET['range']) && 'last_year' === $_GET['range'], true ); ?>>Last Year</option>
+							<option value="" <?php selected( empty( $_GET['range'] ?? '' ), true ); ?>><?php esc_html_e( 'Custom', 'tweaks-for-woo' ); ?></option>
+							<option value="7d" <?php selected( isset( $_GET['range'] ) && '7d' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last 7 Days', 'tweaks-for-woo' ); ?></option>
+							<option value="30d" <?php selected( isset( $_GET['range'] ) && '30d' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last 30 Days', 'tweaks-for-woo' ); ?></option>
+							<option value="90d" <?php selected( isset( $_GET['range'] ) && '90d' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last 90 Days', 'tweaks-for-woo' ); ?></option>
+							<option value="this_month" <?php selected( isset( $_GET['range'] ) && 'this_month' === $_GET['range'], true ); ?>><?php esc_html_e( 'This Month', 'tweaks-for-woo' ); ?></option>
+							<option value="last_month" <?php selected( isset( $_GET['range'] ) && 'last_month' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last Month', 'tweaks-for-woo' ); ?></option>
+							<option value="this_year" <?php selected( isset( $_GET['range'] ) && 'this_year' === $_GET['range'], true ); ?>><?php esc_html_e( 'This Year', 'tweaks-for-woo' ); ?></option>
+							<option value="last_year" <?php selected( isset( $_GET['range'] ) && 'last_year' === $_GET['range'], true ); ?>><?php esc_html_e( 'Last Year', 'tweaks-for-woo' ); ?></option>
 						</select>
 					</div>
 

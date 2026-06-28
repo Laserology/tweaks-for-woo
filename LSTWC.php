@@ -3,7 +3,7 @@ Plugin Name: Tweaks for Woo
 Plugin URI: https://github.com/Laserology/tweaks-for-woo/
 Description: Free tweaks plugin for your woo store.
 License: GPL v2 or later
-Version: 1.1.0
+Version: 1.0.0
 Author: Laserology
 Author URI: https://laserology.net/
 Requires Plugins: woocommerce

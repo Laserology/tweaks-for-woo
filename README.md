@@ -1,4 +1,5 @@
-# tweaks-for-wc
+# tweaks-for-woo
+
 A simple plugin designed for simple tweaking the very popular e-commerce platform.
 
 Please note that this is only a tool that aims to format your store in a way that works for you. In no way does it ensure compliance with taxes or any other regulatory requirements. By using this software you entirely agree that you understand this and will not attempt to hold us liable for _your_ mistakes.
