@@ -71,7 +71,6 @@ class ConfigView {
 
 			<form method="post" action="options.php">
 				<?php settings_fields( 'tweaks_for_wc_settings' ); ?>
-				<?php submit_button(); ?>
 
 				<table class="form-table">
 					<tr>
