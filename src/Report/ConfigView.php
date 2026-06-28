@@ -11,9 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class ConfigView {
 
-    const LOCATION_TWEAK_KEY    = 'tweaks_for_woo_location_adjust';
-	const BILLING_OPTION_KEY    = 'tweaks_for_woo_force_billing';
-	const CA_TAX_SCREEN_KEY     = 'tweaks_for_woo_california_tax_screen';
+	/** Settings keys stored as WordPress options. */
+	const LOCATION_TWEAK_KEY = 'tweaks_for_woo_location_adjust';
+	const BILLING_OPTION_KEY = 'tweaks_for_woo_force_billing';
+	const CA_TAX_SCREEN_KEY  = 'tweaks_for_woo_california_tax_screen';
 
 	/**
 	 * Register the settings submenu and handler.
@@ -38,7 +39,11 @@ class ConfigView {
 	}
 
 	/**
-	 * Register the plugin options.
+	 * Register settings fields so WooCommerce saves them in the database.
+	 *
+	 * Registers three boolean options under the 'tweaks_for_woo_settings'
+	 * option group: force-billing address, California tax screen toggle,
+	 * and location price adjustment.
 	 */
 	public static function register_settings(): void {
 		register_setting( 'tweaks_for_woo_settings', self::BILLING_OPTION_KEY, [
@@ -173,19 +178,38 @@ class ConfigView {
 		<?php
 	}
 
+	/**
+	 * Check whether location-based price adjustment is currently enabled.
+	 *
+	 * When enabled, WooCommerce will no longer change display prices if
+	 * "show prices including tax" is set — useful for stores that want
+	 * consistent pricing regardless of the visitor's location.
+	 *
+	 * @return bool True if location adjust is enabled; false otherwise.
+	 */
 	public static function is_location_adjust_enabled(): bool {
 	    return (bool) get_option( self::LOCATION_TWEAK_KEY, true );
 	}
 
 	/**
 	 * Check whether force-billing is currently enabled.
+	 *
+	 * When true, orders created by administrators with blank billing/shipping
+	 * addresses will automatically be filled in with the store base address.
+	 *
+	 * @return bool True if force-billing is enabled; false otherwise.
 	 */
 	public static function is_billing_tweak_enabled(): bool {
 		return (bool) get_option( self::BILLING_OPTION_KEY, true );
 	}
 
 	/**
-	 * Check whether the California tax screen is currently enabled.
+	 * Check whether the California tax report screen is currently enabled.
+	 *
+	 * When true, the Sales Location Report (California tax screen) will
+	 * appear under WooCommerce → Reports.
+	 *
+	 * @return bool True if the CA tax screen is enabled; false otherwise.
 	 */
 	public static function is_ca_tax_screen_enabled(): bool {
 		return (bool) get_option( self::CA_TAX_SCREEN_KEY, true );

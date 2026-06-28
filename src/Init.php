@@ -39,13 +39,15 @@ class Init {
 	}
 
 	/**
-     * Fill in billing address from store base if it's missing.
-     *
-     * This ensures the Woo mobile app always has a billing address on
-     * in-person orders, which is required for compliance and records.
-     *
-     * Only applies to orders created by users with 'manage_options' capability.
-     */
+         * Fill in store base address for orders missing billing/shipping info.
+         *
+         * Ensures WooCommerce mobile orders created by administrators have
+         * complete billing and shipping addresses, which is required for tax
+         * compliance and record-keeping.
+         *
+         * Only applies to orders created by users with 'manage_options'
+         * capability (administrators/via mobile app).
+         */
     public static function LSTWC_force_billing_address( $order_id ) {
         // Only proceed if we can positively identify the user as having admin.
         if ( ! current_user_can( 'manage_options' ) ) {
@@ -100,7 +102,10 @@ class Init {
 	}
 
 	/**
-	 * Enqueue report styles only on the report page.
+	 * Enqueue CSS styles on the WooCommerce admin pages for this plugin.
+	 *
+	 * Loads `assets/css/reports.css` only when the Sales Location Report
+	 * page is being displayed, to avoid unnecessary asset loading elsewhere.
 	 */
 	public static function enqueue_assets(): void {
 		global $hook_suffix;

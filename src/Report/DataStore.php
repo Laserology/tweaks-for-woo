@@ -20,7 +20,7 @@ class DataStore {
 	 */
 	const GROUP_STATE = 'state';
 	const GROUP_CITY  = 'city';
-	const GROUP_ALL   = 'all'; // combined rows with state/city columns
+	const GROUP_ALL   = 'all'; // Combined rows with state/city columns.
 
 	/**
 	 * Fetch all location-based order totals for a given date range.
@@ -127,7 +127,15 @@ class DataStore {
 	}
 
 	/**
-	 * Get a grand-total across all locations.
+	 * Get a grand-total across all locations for the given date range.
+	 *
+	 * Sums up `get_total()` for all completed and processing orders within
+	 * the specified period, providing a single total revenue figure regardless
+	 * of billing location.
+	 *
+	 * @param string $from Start date (Y-m-d).
+	 * @param string $to   End date (Y-m-d).
+	 * @return float Grand total as a decimal.
 	 */
 	public static function get_grand_total( string $from, string $to ): float {
 		$grand_total = 0.0;
