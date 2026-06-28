@@ -3,7 +3,7 @@
  * Admin View: renders the Sales Location Report in WooCommerce's reports area.
  */
 
-namespace TweaksForWC\Report;
+namespace TweaksForWoo\Report;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +24,7 @@ class AdminView {
 	 */
 	public static function add_report_link( array &$reports ): void {
 		$reports[ 'sales-location-report' ] = [
-			'title' => __( 'Sales Location', 'tweaks-for-wc' ),
+			'title' => __( 'Sales Location', 'tweaks-for-woo' ),
 			'menu'  => 'sales-location-report',
 		];
 	}
@@ -35,8 +35,8 @@ class AdminView {
 	public static function add_submenu_page(): void {
 		add_submenu_page(
 			'woocommerce',
-			__( 'Sales Location Report', 'tweaks-for-wc' ),
-			__( 'Sales Location', 'tweaks-for-wc' ),
+			__( 'Sales Location Report', 'tweaks-for-woo' ),
+			__( 'Sales Location', 'tweaks-for-woo' ),
 			'manage_woocommerce',
 			'sales-location-report',
 			[ __CLASS__, 'render_page' ]
@@ -92,21 +92,21 @@ class AdminView {
 
 		// Tab labels
 		$tabs = [
-			'all'    => __( 'All Levels', 'tweaks-for-wc' ),
-			'state'  => __( 'By State', 'tweaks-for-wc' ),
-			'county' => __( 'By County', 'tweaks-for-wc' ),
-			'city'   => __( 'By City', 'tweaks-for-wc' ),
+			'all'    => __( 'All Levels', 'tweaks-for-woo' ),
+			'state'  => __( 'By State', 'tweaks-for-woo' ),
+			'county' => __( 'By County', 'tweaks-for-woo' ),
+			'city'   => __( 'By City', 'tweaks-for-woo' ),
 		];
 
 		?>
 		<div class="wrap tweaks-sales-location-report">
 
 			<h1 class="wp-heading-inline">
-				<?php echo esc_html( __( 'Sales Location Report', 'tweaks-for-wc' ) ); ?>
+				<?php echo esc_html( __( 'Sales Location Report', 'tweaks-for-woo' ) ); ?>
 			</h1>
 
 			<p class="description">
-				<?php echo esc_html__( 'Aggregated order totals grouped by state, county, and city billing address. Designed for California tax reporting.', 'tweaks-for-wc' ); ?>
+				<?php echo esc_html__( 'Aggregated order totals grouped by state, county, and city billing address. Designed for California tax reporting.', 'tweaks-for-woo' ); ?>
 			</p>
 
 			<hr class="wp-header-end" />
@@ -119,18 +119,18 @@ class AdminView {
 
 				<div class="tflc-filters">
 					<label>
-						<?php esc_html_e( 'From:', 'tweaks-for-wc' ); ?>
+						<?php esc_html_e( 'From:', 'tweaks-for-woo' ); ?>
 						<input type="date" name="date_start" value="<?php echo esc_attr( $date_from ); ?>" required />
 					</label>
 
 					<label>
-						<?php esc_html_e( 'To:', 'tweaks-for-wc' ); ?>
+						<?php esc_html_e( 'To:', 'tweaks-for-woo' ); ?>
 						<input type="date" name="date_end" value="<?php echo esc_attr( $date_to ); ?>" required />
 					</label>
 
 					<div class="tflc-quick-range">
 						<span class="dashicons dashicons-calendar" style="margin-right:4px"></span>
-						<?php esc_html_e( 'Quick Range:', 'tweaks-for-wc' ); ?>
+						<?php esc_html_e( 'Quick Range:', 'tweaks-for-woo' ); ?>
 						<select name="range" onchange="this.form.submit()">
 							<option value="" <?php selected( empty( $_GET['range'] ?? '' ), true ); ?>>Custom</option>
 							<option value="7d" <?php selected( isset($_GET['range']) && '7d' === $_GET['range'], true ); ?>>Last 7 Days</option>
@@ -144,7 +144,7 @@ class AdminView {
 					</div>
 
 					<button type="submit" class="button button-primary">
-						<?php esc_html_e( 'Get Report', 'tweaks-for-wc' ); ?>
+						<?php esc_html_e( 'Get Report', 'tweaks-for-woo' ); ?>
 					</button>
 				</div>
 			</form>
@@ -152,7 +152,7 @@ class AdminView {
 			<!-- Summary Card -->
 			<div class="tflc-summary">
 				<div class="tflc-summary-card">
-					<span class="tflc-summary-label"><?php esc_html_e( 'Total Revenue', 'tweaks-for-wc' ); ?></span>
+					<span class="tflc-summary-label"><?php esc_html_e( 'Total Revenue', 'tweaks-for-woo' ); ?></span>
 					<span class="tflc-summary-value"><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ) ) ); ?></span>
 				</div>
 			</div>
@@ -172,20 +172,20 @@ class AdminView {
 
 				<?php if ( empty( $totals ) ): ?>
 					<p class="description">
-						<?php esc_html_e( 'No orders found for the selected period.', 'tweaks-for-wc' ); ?>
+						<?php esc_html_e( 'No orders found for the selected period.', 'tweaks-for-woo' ); ?>
 					</p>
 				<?php else: ?>
 
 					<?php if ( $group_by === 'all' ): ?>
 						<!-- Combined table: State | County | City -->
-						<h3><?php esc_html_e( 'Combined Breakdown', 'tweaks-for-wc' ); ?></h3>
+						<h3><?php esc_html_e( 'Combined Breakdown', 'tweaks-for-woo' ); ?></h3>
 						<div class="tflc-table-wrapper">
 							<table class="wp-list-table widefat striped">
 								<thead>
 									<tr>
-										<th style="width:33%"><?php esc_html_e( 'State', 'tweaks-for-wc' ); ?></th>
-										<th style="width:33%"><?php esc_html_e( 'County', 'tweaks-for-wc' ); ?></th>
-										<th style="width:33%"><?php esc_html_e( 'City', 'tweaks-for-wc' ); ?></th>
+										<th style="width:33%"><?php esc_html_e( 'State', 'tweaks-for-woo' ); ?></th>
+										<th style="width:33%"><?php esc_html_e( 'County', 'tweaks-for-woo' ); ?></th>
+										<th style="width:33%"><?php esc_html_e( 'City', 'tweaks-for-woo' ); ?></th>
 									</tr>
 								</thead>
 								<tbody>
@@ -226,7 +226,7 @@ class AdminView {
 									<!-- Grand total footer row -->
 									<tfoot>
 										<tr class="tflc-grand-total-row">
-											<td colspan="3"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-wc' ) ); ?>:</strong> <?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
+											<td colspan="3"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-woo' ) ); ?>:</strong> <?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
 										</tr>
 									</tfoot>
 								</tbody>
@@ -240,8 +240,8 @@ class AdminView {
 							<table class="wp-list-table widefat striped">
 								<thead>
 									<tr>
-										<th><?php echo esc_html( $group_by === 'state' ? __( 'State', 'tweaks-for-wc' ) : ( $group_by === 'county' ? __( 'County', 'tweaks-for-wc' ) : __( 'City', 'tweaks-for-wc' ) ) ); ?></th>
-										<th><?php esc_html_e( 'Revenue', 'tweaks-for-wc' ); ?></th>
+										<th><?php echo esc_html( $group_by === 'state' ? __( 'State', 'tweaks-for-woo' ) : ( $group_by === 'county' ? __( 'County', 'tweaks-for-woo' ) : __( 'City', 'tweaks-for-woo' ) ) ); ?></th>
+										<th><?php esc_html_e( 'Revenue', 'tweaks-for-woo' ); ?></th>
 									</tr>
 								</thead>
 								<tbody>
@@ -254,7 +254,7 @@ class AdminView {
 								</tbody>
 								<tfoot>
 									<tr class="tflc-grand-total-row">
-										<td><strong><?php echo esc_html( __( 'Total', 'tweaks-for-wc' ) ); ?></strong></td>
+										<td><strong><?php echo esc_html( __( 'Total', 'tweaks-for-woo' ) ); ?></strong></td>
 										<td class="tflc-amount"><strong><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></strong></td>
 									</tr>
 								</tfoot>

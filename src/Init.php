@@ -3,7 +3,7 @@
  * Bootstrap: wires the report plugin into WooCommerce's admin.
  */
 
-namespace TweaksForWC;
+namespace TweaksForWoo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,12 +19,12 @@ class Init {
 
 		// Hook into WooCommerce menu so our tab appears alongside the default reports.
 		// Only run if user has selected for it to be enabled.
-        if ( \TweaksForWC\Report\ConfigView::is_ca_tax_screen_enabled() ) {
-            \TweaksForWC\Report\AdminView::register_menu();
+        if ( \TweaksForWoo\Report\ConfigView::is_ca_tax_screen_enabled() ) {
+            \TweaksForWoo\Report\AdminView::register_menu();
         }
 
 		// Register settings page under WooCommerce → Tweaks.
-		\TweaksForWC\Report\ConfigView::register_menu();
+		\TweaksForWoo\Report\ConfigView::register_menu();
 
 		// Enqueue report styles on the WooCommerce admin pages.
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
@@ -35,7 +35,7 @@ class Init {
 	 */
 	private static function register_autoloader(): void {
 		spl_autoload_register( function ( string $class ): void {
-			$prefix = 'TweaksForWC\\';
+			$prefix = 'TweaksForWoo\\';
 
 			if ( strncmp( $prefix, $class, strlen( $prefix ) ) !== 0 ) {
 				return;
@@ -62,7 +62,7 @@ class Init {
 		}
 
 		wp_enqueue_style(
-			'tweaks-for-wc-reports',
+			'tweaks-for-woo-reports',
 			plugins_url( '../assets/css/reports.css', dirname( __FILE__ ) ),
 			[],
 			'1.0.0'
