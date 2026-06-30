@@ -57,13 +57,13 @@ class ReportData {
 	 */
 	private static function aggregate_orders( array $orders, string $field_name ): array {
 		$aggregated = array();
-		$countries = WC()->countries;
+		$countries  = WC()->countries;
 
 		foreach ( $orders as $order ) {
 			$location = $order->{ $field_name };
 
 			if ( empty( $location ) ) {
-			    $location = match ( $field_name ) {
+				$location = match ( $field_name ) {
 					'billing_state' => $countries->get_base_state(),
 					'billing_city'  => $countries->get_base_city(),
 					default         => __( 'Unknown or Unspecified', 'tweaks-for-woo' ),
@@ -85,7 +85,7 @@ class ReportData {
 		// Sort by total descending.
 		uasort( $aggregated, function ( $a, $b ) {
 			return $b['total'] <=> $a['total'];
-		});
+		} );
 
 		return array_values( $aggregated );
 	}
@@ -93,7 +93,10 @@ class ReportData {
 	/**
 	 * Get a combined summary: state / city breakdown in parallel columns.
 	 *
-	 * @return array[]
+	 * @param string $from            Start date (Y-m-d).
+	 * @param string $to              End date (Y-m-d).
+	 * @param bool   $california_only Whether to filter to CA orders only.
+	 * @return array<WC_Order>
 	 */
 	private static function get_combined_totals( string $from, string $to, bool $california_only = false ): array {
 		$result = array();
@@ -151,8 +154,9 @@ class ReportData {
 	 * because billing fields are stored as COT columns under HPOS, not post meta.
 	 * Filtering in PHP avoids incompatibility with the meta_query approach.
 	 *
-	 * @param string $from Start date (Y-m-d).
-	 * @param string $to   End date (Y-m-d).
+	 * @param string $from            Start date (Y-m-d).
+	 * @param string $to              End date (Y-m-d).
+	 * @param bool   $california_only Whether to filter to CA orders only.
 	 * @return array<WC_Order>
 	 */
 	private static function fetch_orders( string $from, string $to, bool $california_only = false ): array {

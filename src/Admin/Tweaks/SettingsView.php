@@ -20,7 +20,7 @@ class SettingsView {
 		$ca_enabled     = get_option( SettingsData::CA_TAX_SCREEN_KEY, true );
 
 		?>
-		<div class="wrap tweaks-for-woo-settings">
+		<div class="wrap tfw-settings-page">
 
 			<form method="post" action="options.php">
 				<?php settings_fields( 'tweaks_for_woo_settings' ); ?>
@@ -85,14 +85,14 @@ class SettingsView {
 					<tr>
 						<th scope="row">
 							<label for="<?php echo esc_attr( SettingsData::LOCATION_TWEAK_KEY ); ?>">
-								<?php esc_html_e( 'Disable price adjusting', 'tweaks-for-woo' ); ?>
+								<?php esc_html_e( 'Prevent price adjustment by location', 'tweaks-for-woo' ); ?>
 							</label>
 						</th>
 						<td>
 							<fieldset>
 								<legend class="description">
 									<?php echo wp_kses_post( __(
-										'When enabled, Woocommerce will no longer change display prices if "show prices including tax" is enabled.',
+										'When enabled, WooCommerce will no longer change display prices if "show prices including tax" is enabled.',
 										'tweaks-for-woo'
 									) ); ?>
 								</legend>

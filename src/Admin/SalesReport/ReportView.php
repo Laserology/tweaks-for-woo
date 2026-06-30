@@ -14,14 +14,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ReportView {
 
 	/**
+	 * Allowed grouping levels for whitelisted validation.
+	 */
+	const ALLOWED_GROUPS = array( 'all', 'state', 'city' );
+
+	/**
 	 * Render the Sales Location Report page content inside the active tab.
 	 */
 	public static function render_page(): void {
 		// Get filters
 		$group_by = isset( $_GET['location_level'] ) ? sanitize_text_field( wp_unslash( $_GET['location_level'] ) ) : 'city';
-		$range    = isset( $_GET['range'] )
-			? sanitize_text_field( wp_unslash( $_GET['range'] ) )
-			: 'this_year';
+
+		if ( ! in_array( $group_by, self::ALLOWED_GROUPS, true ) ) {
+			$group_by = 'city';
+		}
+
+		$range     = isset( $_GET['range'] ) ? sanitize_text_field( wp_unslash( $_GET['range'] ) ) : 'this_year';
 		$date_from = isset( $_GET['date_start'] ) ? sanitize_text_field( wp_unslash( $_GET['date_start'] ) ) : date_i18n( 'Y-m-d', strtotime( '-30 days' ) );
 		$date_to   = isset( $_GET['date_end'] )   ? sanitize_text_field( wp_unslash( $_GET['date_end'] ) )   : date_i18n( 'Y-m-d' );
 		$ca_only   = isset( $_GET['california_only'] ) && $_GET['california_only'] !== 'no';
@@ -66,14 +74,14 @@ class ReportView {
 		$grand   = ReportData::get_grand_total( $date_from, $date_to, $ca_only );
 
 		// Tab labels for the report sub-tabs
-		$report_tabs = [
+		$report_tabs = array(
 			'all'    => __( 'All Levels', 'tweaks-for-woo' ),
 			'state'  => __( 'By State', 'tweaks-for-woo' ),
 			'city'   => __( 'By City', 'tweaks-for-woo' ),
-		];
+		);
 
 		?>
-		<div class="wrap tweaks-sales-location-report">
+		<div class="wrap tfw-sales-report">
 
 			<p class="description">
 				<?php echo esc_html__( 'Aggregated order totals grouped by state and city billing address. Designed for California tax reporting.', 'tweaks-for-woo' ); ?>
@@ -82,12 +90,12 @@ class ReportView {
 			<hr class="wp-header-end" />
 
 			<!-- Filters -->
-			<form method="get" action="">
-				<input type="hidden" name="page" value="tweaks-for-woo" />
+			<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
+				<input type="hidden" name="page" value="<?php echo esc_attr( \TweaksForWoo\Admin\TabManager::MENU_SLUG ); ?>" />
 				<input type="hidden" name="tab" value="sales-report" />
 				<input type="hidden" name="location_level" value="<?php echo esc_attr( $group_by ); ?>" />
 
-				<div class="tflc-filters">
+				<div class="tfw-filters">
 					<label>
 						<?php esc_html_e( 'From:', 'tweaks-for-woo' ); ?>
 						<input type="date" name="date_start" value="<?php echo esc_attr( $date_from ); ?>" required />
@@ -98,13 +106,13 @@ class ReportView {
 						<input type="date" name="date_end" value="<?php echo esc_attr( $date_to ); ?>" required />
 					</label>
 
-					<label class="tflc-ca-toggle">
+					<label class="tfw-ca-toggle">
 						<input type="checkbox" name="california_only" value="yes" <?php checked( $ca_only, true ); ?>
-						       onchange="this.form.submit()" />
+						     onchange="this.form.submit()" />
 						<?php esc_html_e( 'California orders only', 'tweaks-for-woo' ); ?>
 					</label>
 
-					<div class="tflc-quick-range">
+					<div class="tfw-quick-range">
 						<span class="dashicons dashicons-calendar" style="margin-right:4px"></span>
 						<?php esc_html_e( 'Quick Range:', 'tweaks-for-woo' ); ?>
 						<select name="range" onchange="this.form.submit()">
@@ -126,17 +134,17 @@ class ReportView {
 			</form>
 
 			<!-- Summary Card -->
-			<div class="tflc-summary">
-				<div class="tflc-summary-card">
-					<span class="tflc-summary-label"><?php esc_html_e( 'Total Revenue', 'tweaks-for-woo' ); ?></span>
-					<span class="tflc-summary-value"><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ) ) ); ?></span>
+			<div class="tfw-summary">
+				<div class="tfw-summary-card">
+					<span class="tfw-summary-label"><?php esc_html_e( 'Total Revenue', 'tweaks-for-woo' ); ?></span>
+					<span class="tfw-summary-value"><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ) ) ); ?></span>
 				</div>
 			</div>
 
 			<!-- Report Sub-Tabs -->
 			<h2 class="nav-tab-wrapper">
 				<?php foreach ( $report_tabs as $key => $label ): ?>
-					<a href="<?php echo esc_url( add_query_arg( [ 'tab' => 'sales-report', 'location_level' => $key ] ) ); ?>"
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => \TweaksForWoo\Admin\TabManager::MENU_SLUG, 'tab' => 'sales-report', 'location_level' => $key ), admin_url( 'admin.php' ) ) ); ?>"
 					   class="nav-tab <?php echo $group_by === $key ? ' nav-tab-active' : ''; ?>">
 						<?php echo esc_html( $label ); ?>
 					</a>
@@ -144,7 +152,7 @@ class ReportView {
 			</h2>
 
 			<!-- Tab Content -->
-			<div class="tflc-tab-content">
+			<div class="tfw-tab-content">
 
 				<?php if ( empty( $totals ) ): ?>
 					<p class="description">
@@ -155,7 +163,7 @@ class ReportView {
 					<?php if ( $group_by === 'all' ): ?>
 						<!-- Combined table: State | City -->
 						<h3><?php esc_html_e( 'Combined Breakdown', 'tweaks-for-woo' ); ?></h3>
-						<div class="tflc-table-wrapper">
+						<div class="tfw-table-wrapper">
 							<table class="wp-list-table widefat striped">
 								<thead>
 									<tr>
@@ -178,13 +186,13 @@ class ReportView {
 										<td>
 											<?php if ( $row_states ): ?>
 												<strong><?php echo esc_html( $row_states['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_states['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
+												<small class="tfw-amount"><?php echo wp_kses( wc_price( $row_states['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
 											<?php endif; ?>
 										</td>
 										<td>
 											<?php if ( $row_cities ): ?>
 												<strong><?php echo esc_html( $row_cities['name'] ); ?></strong><br />
-												<small class="tflc-amount"><?php echo wp_kses( wc_price( $row_cities['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
+												<small class="tfw-amount"><?php echo wp_kses( wc_price( $row_cities['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></small>
 											<?php endif; ?>
 										</td>
 									</tr>
@@ -192,7 +200,7 @@ class ReportView {
 
 									<!-- Grand total footer row -->
 									<tfoot>
-										<tr class="tflc-grand-total-row">
+										<tr class="tfw-grand-total-row">
 											<td colspan="2"><strong><?php echo esc_html( __( 'Grand Total', 'tweaks-for-woo' ) ); ?>:</strong> <?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
 										</tr>
 									</tfoot>
@@ -203,7 +211,7 @@ class ReportView {
 					<?php else: ?>
 						<!-- Single level table -->
 						<h3><?php echo esc_html( ucwords( str_replace( '_', ' ', $group_by ) ) ); ?></h3>
-						<div class="tflc-table-wrapper">
+						<div class="tfw-table-wrapper">
 							<table class="wp-list-table widefat striped">
 								<thead>
 									<tr>
@@ -215,14 +223,14 @@ class ReportView {
 									<?php foreach ( $totals as $row ): ?>
 										<tr>
 											<td><strong><?php echo esc_html( $row['name'] ); ?></strong></td>
-											<td class="tflc-amount"><?php echo wp_kses( wc_price( $row['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
+											<td class="tfw-amount"><?php echo wp_kses( wc_price( $row['total'] ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></td>
 										</tr>
 									<?php endforeach; ?>
 								</tbody>
 								<tfoot>
-									<tr class="tflc-grand-total-row">
+									<tr class="tfw-grand-total-row">
 										<td><strong><?php echo esc_html( __( 'Total', 'tweaks-for-woo' ) ); ?></strong></td>
-										<td class="tflc-amount"><strong><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></strong></td>
+										<td class="tfw-amount"><strong><?php echo wp_kses( wc_price( $grand ), array( 'span' => array( 'class' => true ), 'bdi' => array( 'class' => true ) ) ); ?></strong></td>
 									</tr>
 								</tfoot>
 							</table>

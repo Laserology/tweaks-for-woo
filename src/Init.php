@@ -67,21 +67,21 @@ class Init {
 	 * Simple class autoloader for src/ classes.
 	 */
 	private static function register_autoloader(): void {
-		    spl_autoload_register( function ( string $class ): void {
-    			$prefix = 'TweaksForWoo\\';
-    
-    			if ( strncmp( $class, $prefix, strlen( $prefix ) ) !== 0 ) {
-    				return;
-    			}
-    
-    			$relative_class = substr( $class, strlen( $prefix ) );
-    
-    			// Map namespace to file path: Report\AdminView -> src/Report/AdminView.php
-    			$file = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . str_replace( '\\', DIRECTORY_SEPARATOR, $relative_class ) . '.php';
-    
-    			if ( file_exists( $file ) ) {
-    				require_once $file;
-    			}
+		spl_autoload_register( function ( string $class ): void {
+			$prefix = 'TweaksForWoo\\';
+
+			if ( strncmp( $class, $prefix, strlen( $prefix ) ) !== 0 ) {
+				return;
+			}
+
+			$relative_class = substr( $class, strlen( $prefix ) );
+
+			// Map namespace to file path: Report\AdminView -> src/Report/AdminView.php
+			$file = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . str_replace( '\\', DIRECTORY_SEPARATOR, $relative_class ) . '.php';
+
+			if ( file_exists( $file ) ) {
+				require_once $file;
+			}
 		} );
 	}
 }

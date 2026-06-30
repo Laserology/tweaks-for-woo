@@ -16,7 +16,7 @@ class BlankView {
 	 */
 	public static function render_page(): void {
 		?>
-		<div class="wrap tweaks-future">
+		<div class="wrap tfw-future-page">
 			<h1 class="wp-heading-inline">
 				<?php echo esc_html__( 'Coming Soon', 'tweaks-for-woo' ); ?>
 			</h1>
