@@ -7,13 +7,13 @@
  * store operates correctly under both legacy post_meta and COT storage.
  */
 
-namespace TweaksForWoo\Admin;
+namespace TweaksForWoo\Admin\SalesReport;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class DataStore {
+class ReportData {
 
 	/**
 	 * Supported grouping levels.
