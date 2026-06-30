@@ -36,16 +36,16 @@ class TabManager {
 	 */
 	public function register(): void {
 		// Settings registration (must run on admin_init).
-		add_action( 'admin_init', [ $this, 'register_settings' ] );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
 
 		// Add the tabbed submenu page under WooCommerce → Tweaks.
-		add_action( 'admin_menu', [ $this, 'add_submenu_page' ] );
+		add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
 
 		// Conditionally load the location and billing tweaks based on settings.
 		$this->maybe_load_tweaks();
 
 		// Enqueue report styles only when the sales-report tab is active.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
 	/**
@@ -65,7 +65,7 @@ class TabManager {
 			__( 'Tweaks', 'tweaks-for-woo' ),
 			'manage_woocommerce',
 			self::MENU_SLUG,
-			[ $this, 'render_page' ]
+			array( $this, 'render_page' )
 		);
 	}
 
@@ -73,14 +73,14 @@ class TabManager {
 	 * Render the full tabbed interface.
 	 */
 	public function render_page(): void {
-		$tabs = [
-		    'future'       => __( 'Future', 'tweaks-for-woo' ),
-			'tweaks'       => __( 'Tweaks', 'tweaks-for-woo' ),
-		];
+		$tabs = array(
+			'future'     => __( 'Future', 'tweaks-for-woo' ),
+			'tweaks'     => __( 'Tweaks', 'tweaks-for-woo' ),
+		);
 
 		if ( \TweaksForWoo\Admin\Tweaks\SettingsData::is_ca_tax_screen_enabled() ) {
 			$tabs = array_merge(
-				[ 'sales-report' => __( 'Sales Report', 'tweaks-for-woo' ) ],
+				array( 'sales-report' => __( 'Sales Report', 'tweaks-for-woo' ) ),
 				$tabs
 			);
 		}
@@ -90,25 +90,8 @@ class TabManager {
 			$this->active_tab = array_key_first( $tabs );
 		}
 
-		// Determine which tab content to show.
-		switch ( $this->active_tab ) {
-			case 'sales-report':
-				$active_class = 'nav-tab-active';
-				break;
-			case 'tweaks':
-				$active_class = 'nav-tab-active';
-				break;
-			case 'future':
-				$active_class = 'nav-tab-active';
-				break;
-			default:
-				$this->active_tab    = array_key_first( $tabs );
-				$active_class        = 'nav-tab-active';
-				break;
-		}
-
 		?>
-		<div class="wrap tweaks-for-woo">
+		<div class="wrap tfw-admin-page">
 			<h1 class="wp-heading-inline">
 				<?php echo esc_html__( 'Tweaks for Woo', 'tweaks-for-woo' ); ?>
 			</h1>
@@ -117,7 +100,7 @@ class TabManager {
 			<!-- Main Tab Navigation -->
 			<h2 class="nav-tab-wrapper">
 				<?php foreach ( $tabs as $slug => $label ): ?>
-					<a href="<?php echo esc_url( add_query_arg( [ 'page' => self::MENU_SLUG, 'tab' => $slug ], '' ) ); ?>"
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => $slug ), admin_url( 'admin.php' ) ) ); ?>"
 					   class="nav-tab <?php echo $this->active_tab === $slug ? ' nav-tab-active' : ''; ?>">
 						<?php echo esc_html( $label ); ?>
 					</a>
@@ -158,7 +141,7 @@ class TabManager {
 		}
 
 		if ( \TweaksForWoo\Admin\Tweaks\SettingsData::is_billing_tweak_enabled() ) {
-			add_action( 'woocommerce_new_order', [ \TweaksForWoo\Init::class, 'force_billing_address' ] );
+			add_action( 'woocommerce_new_order', array( \TweaksForWoo\Init::class, 'force_billing_address' ) );
 		}
 	}
 
@@ -180,7 +163,7 @@ class TabManager {
 		wp_enqueue_style(
 			'tweaks-for-woo-reports',
 			plugins_url( '../assets/css/reports.css', dirname( __FILE__ ) ),
-			[],
+			array(),
 			'1.0.0'
 		);
 	}
