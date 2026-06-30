@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class TabManager {
 
 	/** Unified menu slug for the tabbed page. */
-	const MENU_SLUG = 'tweaks-for-woo-tabbed';
+	const MENU_SLUG = 'tweaks-for-woo';
 
 	/** Active tab, read from $_GET['tab']; defaults to 'sales-report'. */
 	private string $active_tab;
@@ -108,7 +108,7 @@ class TabManager {
 		}
 
 		?>
-		<div class="wrap tweaks-for-woo-tabbed">
+		<div class="wrap tweaks-for-woo">
 			<h1 class="wp-heading-inline">
 				<?php echo esc_html__( 'Tweaks for Woo', 'tweaks-for-woo' ); ?>
 			</h1>
@@ -169,7 +169,7 @@ class TabManager {
 	 */
 	public function enqueue_assets(): void {
 		global $hook_suffix;
-		if ( basename( $hook_suffix ) !== 'tweaks-for-woo-tabbed' ) {
+		if ( basename( $hook_suffix ) !== 'tweaks-for-woo' ) {
 			return;
 		}
 

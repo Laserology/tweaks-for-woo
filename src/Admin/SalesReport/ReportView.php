@@ -21,13 +21,13 @@ class ReportView {
 		$group_by = isset( $_GET['location_level'] ) ? sanitize_text_field( wp_unslash( $_GET['location_level'] ) ) : 'city';
 		$range    = isset( $_GET['range'] )
 			? sanitize_text_field( wp_unslash( $_GET['range'] ) )
-			: '';
+			: 'this_year';
 		$date_from = isset( $_GET['date_start'] ) ? sanitize_text_field( wp_unslash( $_GET['date_start'] ) ) : date_i18n( 'Y-m-d', strtotime( '-30 days' ) );
 		$date_to   = isset( $_GET['date_end'] )   ? sanitize_text_field( wp_unslash( $_GET['date_end'] ) )   : date_i18n( 'Y-m-d' );
 		$ca_only   = isset( $_GET['california_only'] ) && $_GET['california_only'] !== 'no';
 
 		// Handle quick-range buttons
-		if ( isset( $_GET['range'] ) ) {
+		if ( ! empty( $range ) ) {
 			switch ( $range ) {
 				case '7d':
 					$date_from = date_i18n( 'Y-m-d', strtotime( '-7 days' ) );
@@ -54,8 +54,9 @@ class ReportView {
 					$date_to   = date_i18n( 'Y-m-d' );
 					break;
 				case 'last_year':
-					$date_from = date_i18n( 'Y-01-01', strtotime( '-1 year' ) );
-					$date_to   = date_i18n( 'Y-m-d', strtotime( '-1 year' ) );
+					$year      = date_i18n( 'Y', strtotime( '-1 year' ) );
+					$date_from = date_i18n( "{$year}-01-01" );
+					$date_to   = date_i18n( "{$year}-12-31" );
 					break;
 			}
 		}
@@ -82,7 +83,7 @@ class ReportView {
 
 			<!-- Filters -->
 			<form method="get" action="">
-				<input type="hidden" name="page" value="tweaks-for-woo-tabbed" />
+				<input type="hidden" name="page" value="tweaks-for-woo" />
 				<input type="hidden" name="tab" value="sales-report" />
 				<input type="hidden" name="location_level" value="<?php echo esc_attr( $group_by ); ?>" />
 
