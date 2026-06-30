@@ -16,11 +16,6 @@ if ( ! defined('ABSPATH') ) {
 
 class LSTWC {
     /**
-     * Holds the values to be used in the fields
-     */
-    private $settings;
-
-    /**
      * Init and hook in the integration.
      * This boots the report submodule.
      */

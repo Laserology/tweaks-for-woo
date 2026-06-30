@@ -1,9 +1,9 @@
 <?php
 /**
- * Admin View: renders the Sales Location Report in the WooCommerce tab area.
+ * Admin View: renders the Sales Location Report screen within the tabbed interface.
  */
 
-namespace TweaksForWoo\Admin;
+namespace TweaksForWoo\Admin\SalesReport;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,56 +14,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ReportView {
 
 	/**
-	 * Register the report as a submenu page under WooCommerce > Reports.
-	 */
-	public static function register_menu(): void {
-		add_action( 'woocommerce_reports', [ __CLASS__, 'add_report_link' ] );
-		add_action( 'admin_menu', [ __CLASS__, 'add_submenu_page' ], 99 );
-	}
-
-	/**
-	 * Add the "Sales Location" link into WooCommerce's built-in menu.
-	 *
-	 * @param array $reports Associative array of slugs to their metadata.
-	 */
-	public static function add_report_link( array &$reports ): void {
-		$reports[ 'sales-location-report' ] = [
-			'title' => __( 'Sales Location', 'tweaks-for-woo' ),
-			'menu'  => 'sales-location-report',
-		];
-	}
-
-	/**
-	 * Add submenu page so the report renders.
-	 */
-	public static function add_submenu_page(): void {
-		add_submenu_page(
-			'woocommerce',
-			__( 'Sales Location Report', 'tweaks-for-woo' ),
-			__( 'Sales Location', 'tweaks-for-woo' ),
-			'manage_woocommerce',
-			'sales-location-report',
-			[ __CLASS__, 'render_page' ]
-		);
-	}
-
-	/**
-	 * Render the Sales Location Report page, including filters, summary card,
-	 * tabs (All Levels / By State / By City), and the revenue table.
-	 *
-	 * Reads location_level, date_start, date_end, and range query parameters
-	 * to determine which orders to display and how to group them.
+	 * Render the Sales Location Report page content inside the active tab.
 	 */
 	public static function render_page(): void {
 		// Get filters
 		$group_by = isset( $_GET['location_level'] ) ? sanitize_text_field( wp_unslash( $_GET['location_level'] ) ) : 'city';
+		$range    = isset( $_GET['range'] )
+			? sanitize_text_field( wp_unslash( $_GET['range'] ) )
+			: '';
 		$date_from = isset( $_GET['date_start'] ) ? sanitize_text_field( wp_unslash( $_GET['date_start'] ) ) : date_i18n( 'Y-m-d', strtotime( '-30 days' ) );
 		$date_to   = isset( $_GET['date_end'] )   ? sanitize_text_field( wp_unslash( $_GET['date_end'] ) )   : date_i18n( 'Y-m-d' );
 		$ca_only   = isset( $_GET['california_only'] ) && $_GET['california_only'] !== 'no';
 
 		// Handle quick-range buttons
 		if ( isset( $_GET['range'] ) ) {
-			switch ( sanitize_text_field( wp_unslash( $_GET['range'] ) ) ) {
+			switch ( $range ) {
 				case '7d':
 					$date_from = date_i18n( 'Y-m-d', strtotime( '-7 days' ) );
 					$date_to   = date_i18n( 'Y-m-d' );
@@ -96,11 +61,11 @@ class ReportView {
 		}
 
 		// Fetch data
-		$totals  = DataStore::get_totals( $group_by, $date_from, $date_to, $ca_only );
-		$grand   = DataStore::get_grand_total( $date_from, $date_to, $ca_only );
+		$totals  = ReportData::get_totals( $group_by, $date_from, $date_to, $ca_only );
+		$grand   = ReportData::get_grand_total( $date_from, $date_to, $ca_only );
 
-		// Tab labels
-		$tabs = [
+		// Tab labels for the report sub-tabs
+		$report_tabs = [
 			'all'    => __( 'All Levels', 'tweaks-for-woo' ),
 			'state'  => __( 'By State', 'tweaks-for-woo' ),
 			'city'   => __( 'By City', 'tweaks-for-woo' ),
@@ -108,10 +73,6 @@ class ReportView {
 
 		?>
 		<div class="wrap tweaks-sales-location-report">
-
-			<h1 class="wp-heading-inline">
-				<?php echo esc_html( __( 'Sales Location Report', 'tweaks-for-woo' ) ); ?>
-			</h1>
 
 			<p class="description">
 				<?php echo esc_html__( 'Aggregated order totals grouped by state and city billing address. Designed for California tax reporting.', 'tweaks-for-woo' ); ?>
@@ -121,8 +82,8 @@ class ReportView {
 
 			<!-- Filters -->
 			<form method="get" action="">
-				<input type="hidden" name="page" value="sales-location-report" />
-				<input type="hidden" name="menu" value="sales-location-report" />
+				<input type="hidden" name="page" value="tweaks-for-woo-tabbed" />
+				<input type="hidden" name="tab" value="sales-report" />
 				<input type="hidden" name="location_level" value="<?php echo esc_attr( $group_by ); ?>" />
 
 				<div class="tflc-filters">
@@ -171,10 +132,10 @@ class ReportView {
 				</div>
 			</div>
 
-			<!-- Tabs -->
+			<!-- Report Sub-Tabs -->
 			<h2 class="nav-tab-wrapper">
-				<?php foreach ( $tabs as $key => $label ): ?>
-					<a href="<?php echo esc_url( add_query_arg( 'location_level', $key ) ); ?>"
+				<?php foreach ( $report_tabs as $key => $label ): ?>
+					<a href="<?php echo esc_url( add_query_arg( [ 'tab' => 'sales-report', 'location_level' => $key ] ) ); ?>"
 					   class="nav-tab <?php echo $group_by === $key ? ' nav-tab-active' : ''; ?>">
 						<?php echo esc_html( $label ); ?>
 					</a>
