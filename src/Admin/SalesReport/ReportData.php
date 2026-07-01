@@ -23,7 +23,8 @@ class ReportData {
 	const GROUP_ALL   = 'all'; // Combined rows with state/city columns.
 
 	/**
-	 * Fetch all location-based order totals for a given date range.
+	 * Fetch a list of totals for each location.
+	 * The array it returns will be locations sorted by the total sold in that location.
 	 *
 	 * @param string $group_by       State, city, or all.
 	 * @param string $from           Start date (Y-m-d).
@@ -31,7 +32,7 @@ class ReportData {
 	 * @param bool   $california_only Whether to filter to CA orders only.
 	 * @return array[]
 	 */
-	public static function get_totals( string $group_by, string $from, string $to, bool $california_only = false ): array {
+	public static function get_location_totals( string $group_by, string $from, string $to, bool $california_only = false ): array {
 
 		$location_field = match ( $group_by ) {
 			self::GROUP_STATE  => 'billing_state',
@@ -96,7 +97,7 @@ class ReportData {
 	 * @param string $from            Start date (Y-m-d).
 	 * @param string $to              End date (Y-m-d).
 	 * @param bool   $california_only Whether to filter to CA orders only.
-	 * @return array<WC_Order>
+	 * @return array
 	 */
 	private static function get_combined_totals( string $from, string $to, bool $california_only = false ): array {
 		$result = array();
@@ -173,7 +174,7 @@ class ReportData {
 		if ( $california_only ) {
 		    // Filter out non-california orders if selected.
 			// Also includes orders with blank addresses (assumed to be store's base address)
-			return array_filter( $filter, fn ( $order ) => $order->get_billing_state() == 'CA' ||$order->get_billing_state() == '' );
+			return array_filter( $filter, fn ( $order ) => $order->get_billing_state() === 'CA' ||$order->get_billing_state() === '' );
 		}
 		else {
 		    return $filter;
