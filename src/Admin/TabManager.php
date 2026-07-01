@@ -101,7 +101,7 @@ class TabManager {
 			<h2 class="nav-tab-wrapper">
 				<?php foreach ( $tabs as $slug => $label ): ?>
 					<a href="<?php echo esc_url( add_query_arg( array( 'page' => self::MENU_SLUG, 'tab' => $slug ), admin_url( 'admin.php' ) ) ); ?>"
-					   class="nav-tab <?php echo $this->active_tab === $slug ? ' nav-tab-active' : ''; ?>">
+					   class="nav-tab <?php echo esc_attr( $this->active_tab === $slug ? ' nav-tab-active' : '' ); ?>">
 						<?php echo esc_html( $label ); ?>
 					</a>
 				<?php endforeach; ?>

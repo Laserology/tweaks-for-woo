@@ -20,7 +20,7 @@ if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {
 	add_action( 'admin_notices', function() {
 	    sprintf(
 			'<div class="notice notice-error"><p>%s</p></div>',
-			esc_html__('Tweaks for Woo requires PHP 8.0 or later. Your server is running PHP %d', 'plugin-domain'), PHP_VERSION );
+			esc_html__('Tweaks for Woo requires PHP 8.0 or later. Your server is running PHP %s', 'tweaks-for-woo'), PHP_VERSION );
 	} );
 	return;
 }

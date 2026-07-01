@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This page only handles GET requests for filtering display data; no state is modified.
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
 class ReportView {
 
@@ -22,17 +22,17 @@ class ReportView {
 	 * Render the Sales Location Report page content inside the active tab.
 	 */
 	public static function render_page(): void {
-		// Get filters
-		$group_by = isset( $_GET['location_level'] ) ? sanitize_text_field( wp_unslash( $_GET['location_level'] ) ) : 'city';
+		// Get user inputs for this page. Use get_query to avoid extra repeated code.
+		$group_by  = self::get_query( 'location_level', 'city' );
+		$range     = self::get_query( 'range', 'this_year' );
+		$date_from = self::get_query( 'date_start', date_i18n( 'Y-m-d', strtotime( '-30 days' ) ) );
+		$date_to   = self::get_query( 'date_end', date_i18n( 'Y-m-d' ) );
+		$ca_only   = isset( $_GET['california_only'] ) && $_GET['california_only'] !== 'no';
 
+		// Default to city-level view if invalid input is given.
 		if ( ! in_array( $group_by, self::ALLOWED_GROUPS, true ) ) {
 			$group_by = 'city';
 		}
-
-		$range     = isset( $_GET['range'] ) ? sanitize_text_field( wp_unslash( $_GET['range'] ) ) : 'this_year';
-		$date_from = isset( $_GET['date_start'] ) ? sanitize_text_field( wp_unslash( $_GET['date_start'] ) ) : date_i18n( 'Y-m-d', strtotime( '-30 days' ) );
-		$date_to   = isset( $_GET['date_end'] )   ? sanitize_text_field( wp_unslash( $_GET['date_end'] ) )   : date_i18n( 'Y-m-d' );
-		$ca_only   = isset( $_GET['california_only'] ) && $_GET['california_only'] !== 'no';
 
 		// Handle quick-range buttons
 		if ( ! empty( $range ) ) {
@@ -70,7 +70,7 @@ class ReportView {
 		}
 
 		// Fetch data
-		$totals  = ReportData::get_totals( $group_by, $date_from, $date_to, $ca_only );
+		$totals  = ReportData::get_location_totals( $group_by, $date_from, $date_to, $ca_only );
 		$grand   = ReportData::get_grand_total( $date_from, $date_to, $ca_only );
 
 		// Tab labels for the report sub-tabs
@@ -84,7 +84,7 @@ class ReportView {
 		<div class="wrap tfw-sales-report">
 
 			<p class="description">
-				<?php echo esc_html__( 'Aggregated order totals grouped by state and city billing address. Designed for California tax reporting.', 'tweaks-for-woo' ); ?>
+				<?php echo esc_html__( 'Aggregated order totals grouped by state and city billing address.', 'tweaks-for-woo' ); ?>
 			</p>
 
 			<hr class="wp-header-end" />
@@ -95,7 +95,9 @@ class ReportView {
 				<input type="hidden" name="tab" value="sales-report" />
 				<input type="hidden" name="location_level" value="<?php echo esc_attr( $group_by ); ?>" />
 
+				<!-- Div containing all user inputs/filters/options for reports. -->
 				<div class="tfw-filters">
+				    <!-- Numerical 'from' date input -->
 					<label>
 						<?php esc_html_e( 'From:', 'tweaks-for-woo' ); ?>
 						<input type="date" name="date_start" value="<?php echo esc_attr( $date_from ); ?>" required />
@@ -106,12 +108,14 @@ class ReportView {
 						<input type="date" name="date_end" value="<?php echo esc_attr( $date_to ); ?>" required />
 					</label>
 
+					<!-- Yes/No toggle to only show California based orders. -->
 					<label class="tfw-ca-toggle">
 						<input type="checkbox" name="california_only" value="yes" <?php checked( $ca_only, true ); ?>
 						     onchange="this.form.submit()" />
 						<?php esc_html_e( 'California orders only', 'tweaks-for-woo' ); ?>
 					</label>
 
+					<!-- Menu with easy common date selections. -->
 					<div class="tfw-quick-range">
 						<span class="dashicons dashicons-calendar" style="margin-right:4px"></span>
 						<?php esc_html_e( 'Quick Range:', 'tweaks-for-woo' ); ?>
@@ -141,7 +145,7 @@ class ReportView {
 				</div>
 			</div>
 
-			<!-- Report Sub-Tabs -->
+			<!-- Report Sub-Tabs (All, State, City, ...) -->
 			<h2 class="nav-tab-wrapper">
 				<?php foreach ( $report_tabs as $key => $label ): ?>
 					<a href="<?php echo esc_url( add_query_arg( array( 'page' => \TweaksForWoo\Admin\TabManager::MENU_SLUG, 'tab' => 'sales-report', 'location_level' => $key ), admin_url( 'admin.php' ) ) ); ?>"
@@ -160,8 +164,8 @@ class ReportView {
 					</p>
 				<?php else: ?>
 
+				    <!-- Combined table: State | City -->
 					<?php if ( $group_by === 'all' ): ?>
-						<!-- Combined table: State | City -->
 						<h3><?php esc_html_e( 'Combined Breakdown', 'tweaks-for-woo' ); ?></h3>
 						<div class="tfw-table-wrapper">
 							<table class="wp-list-table widefat striped">
@@ -208,8 +212,8 @@ class ReportView {
 							</table>
 						</div>
 
+					<!-- Single level table -->
 					<?php else: ?>
-						<!-- Single level table -->
 						<h3><?php echo esc_html( ucwords( str_replace( '_', ' ', $group_by ) ) ); ?></h3>
 						<div class="tfw-table-wrapper">
 							<table class="wp-list-table widefat striped">
@@ -241,5 +245,16 @@ class ReportView {
 			</div>
 		</div>
 		<?php
+	}
+
+	/*
+	 * Unified method for getting query strings.
+	 * Cuts down on bloat in the plugin.
+	 *
+	 * @param string $name
+	 * @return string
+	 */
+	private static function get_query( string $name, string $default ) : string {
+	    return isset( $_GET[$name] ) ? sanitize_text_field( wp_unslash( $_GET[$name] ) ) : $default;
 	}
 }
