@@ -1,6 +1,6 @@
 === Tweaks for Woo ===
 Contributors: laserology
-Tags: woo, tweaks, tax, options, extras
+Tags: woocommerce, tweaks, tax, options, extras
 Requires at least: 7.0
 Tested up to: 7.0
 Stable tag: 1.0.0

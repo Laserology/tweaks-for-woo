@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Require PHP 8.0+ for modern syntax support (match expressions, typed arrow functions).
 if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {
 	add_action( 'admin_notices', function() {
-	    sprintf(
+	    printf(
 			'<div class="notice notice-error"><p>%s</p></div>',
 			esc_html__('Tweaks for Woo requires PHP 8.0 or later. Your server is running PHP %s', 'tweaks-for-woo'), PHP_VERSION );
 	} );
