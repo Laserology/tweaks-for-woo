@@ -1,6 +1,6 @@
 <?php
 /**
- * Bootstrap: wires the tabbed report plugin into WooCommerce's admin.
+ * Bootstrap: wires the plugin into WooCommerce's admin.
  */
 
 namespace TweaksForWoo;
@@ -12,14 +12,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Init {
 
 	/**
-	 * Register autoloader for src/*.php classes and boot the TabManager.
+	 * Register autoloader for src/*.php classes and boot everything.
 	 */
 	public static function boot(): void {
 		self::register_autoloader();
 
-		// Bootstrap the unified tabbed admin interface.
-		$tab_manager = new \TweaksForWoo\Admin\TabManager();
-		$tab_manager->register();
+		// Register "Tweaks" tab in WooCommerce → Settings.
+		add_filter( 'woocommerce_settings_tabs_array', array( \TweaksForWoo\Admin\SettingsView::class, 'add_settings_tab' ), 99 );
+		add_action( 'woocommerce_settings_tabs_tweaks', array( \TweaksForWoo\Admin\SettingsView::class, 'render_tab' ) );
+
+		// Conditionally load the location and billing tweaks based on settings.
+		self::maybe_load_tweaks();
 	}
 
 	/**
@@ -64,6 +67,19 @@ class Init {
 	}
 
 	/**
+	 * Load the location and billing tweaks if their respective settings are enabled.
+	 */
+	private static function maybe_load_tweaks(): void {
+		if ( \TweaksForWoo\Admin\SettingsData::is_location_adjust_enabled() ) {
+			add_filter( 'woocommerce_adjust_non_base_location_prices', '__return_false' );
+		}
+
+		if ( \TweaksForWoo\Admin\SettingsData::is_billing_tweak_enabled() ) {
+			add_action( 'woocommerce_new_order', array( __CLASS__, 'force_billing_address' ) );
+		}
+	}
+
+	/**
 	 * Simple class autoloader for src/ classes.
 	 */
 	private static function register_autoloader(): void {
@@ -76,7 +92,7 @@ class Init {
 
 			$relative_class = substr( $class, strlen( $prefix ) );
 
-			// Map namespace to file path: Report\AdminView -> src/Report/AdminView.php
+			// Map namespace to file path: Admin\SettingsData -> src/Admin/SettingsData.php
 			$file = dirname( __FILE__ ) . DIRECTORY_SEPARATOR . str_replace( '\\', DIRECTORY_SEPARATOR, $relative_class ) . '.php';
 
 			if ( file_exists( $file ) ) {

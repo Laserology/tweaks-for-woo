@@ -28,7 +28,6 @@ if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {
 class LSTWC {
 	/**
 	 * Init and hook in the integration.
-	 * This boots the report submodule.
 	 */
 	public function __construct() {
 		require_once plugin_dir_path( __FILE__ ) . 'src/Init.php';
