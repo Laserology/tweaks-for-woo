@@ -42,97 +42,108 @@ class SettingsView {
 	}
 
 	/**
+	 * Enqueue styles and scripts only for this plugin's settings tab.
+	 */
+	public static function enqueue_assets(): void {
+		if ( ! isset( $_GET['page'], $_GET['tab'] ) || 'wc-settings' !== $_GET['page'] || 'tweaks' !== $_GET['tab'] ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'tweaks-for-woo-settings',
+			plugins_url( 'assets/settings.css', __FILE__ ),
+			array( 'dashicons' ),
+			filemtime( __DIR__ . '/assets/settings.css' )
+		);
+
+		wp_enqueue_script(
+			'tweaks-for-woo-settings',
+			plugins_url( 'assets/settings.js', __FILE__ ),
+			array( 'jquery' ),
+			filemtime( __DIR__ . '/assets/settings.js' ),
+			true
+		);
+
+		wp_localize_script(
+			'tweaks-for-woo-settings',
+			'lstwcSettings',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'tweaks_for_woo_save' ),
+			)
+		);
+	}
+
+	/**
+	 * AJAX handler: saves the tweak settings without a page reload.
+	 */
+	public static function handle_ajax_save(): void {
+		check_ajax_referer( 'tweaks_for_woo_save', 'nonce' );
+
+		$keys = array( SettingsData::BILLING_OPTION_KEY, SettingsData::LOCATION_TWEAK_KEY );
+		foreach ( $keys as $key ) {
+			$enabled = isset( $_POST[ $key ] ) && filter_var( wp_unslash( $_POST[ $key ] ), FILTER_VALIDATE_BOOLEAN );
+			update_option( $key, $enabled );
+		}
+
+		wp_send_json_success();
+	}
+
+	/**
 	 * Render the Tweaks tab content inside WooCommerce → Settings.
 	 */
 	public static function render_tab(): void {
-		// Hide WooCommerce's own "Save changes" button; this tab posts to the options API instead.
+		// Hide WooCommerce's own "Save changes" button; toggles auto-save via AJAX.
 		$GLOBALS['hide_save_button'] = true;
 
-		// Handle form submission (saves via WordPress options API).
-		if ( isset( $_POST['tweaks_save'] ) && isset( $_POST['tweaks_nonce'] )
-			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['tweaks_nonce'] ) ), 'tweaks_for_woo_save' )
-		) {
-			$keys = array( SettingsData::BILLING_OPTION_KEY, SettingsData::LOCATION_TWEAK_KEY );
-			foreach ( $keys as $key ) {
-				update_option( $key, isset( $_POST[ $key ] ) ? true : false );
-			}
-			// Prevent re-submit by redirecting to same page with success flag.
-			wp_safe_redirect( add_query_arg( array( 'tweaks_saved' => '1' ), admin_url( 'admin.php?page=woocommerce&tab=tweaks' ) ) );
-			exit;
-		}
-
-		$bi_enabled = get_option( SettingsData::BILLING_OPTION_KEY, true );
-		$lo_enabled = get_option( SettingsData::LOCATION_TWEAK_KEY, true );
-
-		// Show success notice if saved.
-		if ( isset( $_GET['tweaks_saved'] ) ) {
-			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Settings saved.', 'tweaks-for-woo' ) . '</p></div>';
-		}
-
+		$settings = array(
+			array(
+				'key'         => SettingsData::BILLING_OPTION_KEY,
+				'icon'        => 'admin-home',
+				'title'       => __( 'Apply Store Base Address to Blank Orders', 'tweaks-for-woo' ),
+				'description' => __( 'When enabled, orders created by administrators with blank billing/shipping addresses will be filled in with the store base address. Disable this to preserve blank addresses.', 'tweaks-for-woo' ),
+				'value'       => (bool) get_option( SettingsData::BILLING_OPTION_KEY, true ),
+			),
+			array(
+				'key'         => SettingsData::LOCATION_TWEAK_KEY,
+				'icon'        => 'admin-site',
+				'title'       => __( 'Prevent price adjustment by location', 'tweaks-for-woo' ),
+				'description' => __( 'When enabled, WooCommerce will no longer change display prices if "show prices including tax" is enabled.', 'tweaks-for-woo' ),
+				'value'       => (bool) get_option( SettingsData::LOCATION_TWEAK_KEY, true ),
+			),
+		);
 		?>
-		<table class="form-table">
-			<tr>
-				<th scope="row">
-					<label for="<?php echo esc_attr( SettingsData::BILLING_OPTION_KEY ); ?>">
-						<?php esc_html_e( 'Apply Store Base Address to Blank Orders', 'tweaks-for-woo' ); ?>
-					</label>
-				</th>
-				<td>
-					<fieldset>
-						<legend class="description">
-							<?php echo wp_kses_post( __(
-								'When enabled, orders created by administrators with blank billing/shipping addresses will be filled in with the store base address. Disable this to preserve blank addresses.',
-								'tweaks-for-woo'
-							) ); ?>
-						</legend>
-						<label>
-							<input type="hidden" name="<?php echo esc_attr( SettingsData::BILLING_OPTION_KEY ); ?>" value="0" />
+		<div id="lstwc-settings-status" class="lstwc-status" role="status" aria-live="polite">
+			<span class="dashicons"></span>
+			<span class="lstwc-status__text"></span>
+		</div>
+		<!-- .wc-settings-prevent-change-event opts toggles out of WooCommerce's unsaved-changes warning; they auto-save. -->
+		<div class="lstwc-settings wc-settings-prevent-change-event">
+			<?php foreach ( $settings as $setting ) : ?>
+				<div class="lstwc-card">
+					<div class="lstwc-card__header">
+						<div class="lstwc-card__icon">
+							<span class="dashicons dashicons-<?php echo esc_attr( $setting['icon'] ); ?>"></span>
+						</div>
+						<h3 class="lstwc-card__title"><?php echo esc_html( $setting['title'] ); ?></h3>
+					</div>
+					<p class="lstwc-card__description"><?php echo esc_html( $setting['description'] ); ?></p>
+					<div class="lstwc-card__footer">
+						<label class="lstwc-toggle" for="<?php echo esc_attr( $setting['key'] ); ?>">
+							<input type="hidden" name="<?php echo esc_attr( $setting['key'] ); ?>" value="0" />
 							<input type="checkbox"
-								id="<?php echo esc_attr( SettingsData::BILLING_OPTION_KEY ); ?>"
-								name="<?php echo esc_attr( SettingsData::BILLING_OPTION_KEY ); ?>"
+								id="<?php echo esc_attr( $setting['key'] ); ?>"
+								name="<?php echo esc_attr( $setting['key'] ); ?>"
 								value="1"
-								<?php checked( $bi_enabled, true ); ?>
+								<?php checked( $setting['value'], true ); ?>
 							/>
-							<?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?>
+							<span class="lstwc-toggle__track" aria-hidden="true"></span>
+							<span class="lstwc-toggle__label"><?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?></span>
 						</label>
-					</fieldset>
-				</td>
-			</tr>
-
-			<tr>
-				<th scope="row">
-					<label for="<?php echo esc_attr( SettingsData::LOCATION_TWEAK_KEY ); ?>">
-						<?php esc_html_e( 'Prevent price adjustment by location', 'tweaks-for-woo' ); ?>
-					</label>
-				</th>
-				<td>
-					<fieldset>
-						<legend class="description">
-							<?php echo wp_kses_post( __(
-								'When enabled, WooCommerce will no longer change display prices if "show prices including tax" is enabled.',
-								'tweaks-for-woo'
-							) ); ?>
-						</legend>
-						<label>
-							<input type="hidden" name="<?php echo esc_attr( SettingsData::LOCATION_TWEAK_KEY ); ?>" value="0" />
-							<input type="checkbox"
-								id="<?php echo esc_attr( SettingsData::LOCATION_TWEAK_KEY ); ?>"
-								name="<?php echo esc_attr( SettingsData::LOCATION_TWEAK_KEY ); ?>"
-								value="1"
-								<?php checked( $lo_enabled, true ); ?>
-							/>
-							<?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?>
-						</label>
-					</fieldset>
-				</td>
-			</tr>
-		</table>
-
-		<p class="submit">
-			<?php wp_nonce_field( 'tweaks_for_woo_save', 'tweaks_nonce' ); ?>
-			<input type="hidden" name="tweaks_save" value="1" />
-			<?php submit_button( __( 'Save Changes', 'tweaks-for-woo' ) ); ?>
-		</p>
+					</div>
+				</div>
+			<?php endforeach; ?>
+		</div>
 		<?php
 	}
 }

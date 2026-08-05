@@ -20,6 +20,8 @@ class Init {
 		// Register "Tweaks" tab in WooCommerce → Settings.
 		add_filter( 'woocommerce_settings_tabs_array', array( \TweaksForWoo\Admin\SettingsView::class, 'add_settings_tab' ), 99 );
 		add_action( 'woocommerce_settings_tabs_tweaks', array( \TweaksForWoo\Admin\SettingsView::class, 'render_tab' ) );
+		add_action( 'admin_enqueue_scripts', array( \TweaksForWoo\Admin\SettingsView::class, 'enqueue_assets' ) );
+		add_action( 'wp_ajax_tweaks_for_woo_save', array( \TweaksForWoo\Admin\SettingsView::class, 'handle_ajax_save' ) );
 
 		// Conditionally load the location and billing tweaks based on settings.
 		self::maybe_load_tweaks();
