@@ -17,7 +17,6 @@ class SettingsData {
 	/** Settings keys stored as WordPress options. */
 	const LOCATION_TWEAK_KEY = 'tweaks_for_woo_location_adjust';
 	const BILLING_OPTION_KEY = 'tweaks_for_woo_force_billing';
-	const CA_TAX_SCREEN_KEY  = 'tweaks_for_woo_california_tax_screen';
 
 	/**
 	 * Check whether location-based price adjustment is currently enabled.
@@ -31,12 +30,5 @@ class SettingsData {
 	 */
 	public static function is_billing_tweak_enabled(): bool {
 		return (bool) get_option( self::BILLING_OPTION_KEY, true );
-	}
-
-	/**
-	 * Check whether the California tax screen is currently enabled.
-	 */
-	public static function is_ca_tax_screen_enabled(): bool {
-		return (bool) get_option( self::CA_TAX_SCREEN_KEY, true );
 	}
 }

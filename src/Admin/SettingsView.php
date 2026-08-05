@@ -52,7 +52,7 @@ class SettingsView {
 		if ( isset( $_POST['tweaks_save'] ) && isset( $_POST['tweaks_nonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['tweaks_nonce'] ) ), 'tweaks_for_woo_save' )
 		) {
-			$keys = array( SettingsData::BILLING_OPTION_KEY, SettingsData::CA_TAX_SCREEN_KEY, SettingsData::LOCATION_TWEAK_KEY );
+			$keys = array( SettingsData::BILLING_OPTION_KEY, SettingsData::LOCATION_TWEAK_KEY );
 			foreach ( $keys as $key ) {
 				update_option( $key, isset( $_POST[ $key ] ) ? true : false );
 			}
@@ -62,7 +62,6 @@ class SettingsView {
 		}
 
 		$bi_enabled = get_option( SettingsData::BILLING_OPTION_KEY, true );
-		$ca_enabled = get_option( SettingsData::CA_TAX_SCREEN_KEY, true );
 		$lo_enabled = get_option( SettingsData::LOCATION_TWEAK_KEY, true );
 
 		// Show success notice if saved.
@@ -93,34 +92,6 @@ class SettingsView {
 								name="<?php echo esc_attr( SettingsData::BILLING_OPTION_KEY ); ?>"
 								value="1"
 								<?php checked( $bi_enabled, true ); ?>
-							/>
-							<?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?>
-						</label>
-					</fieldset>
-				</td>
-			</tr>
-
-			<tr>
-				<th scope="row">
-					<label for="<?php echo esc_attr( SettingsData::CA_TAX_SCREEN_KEY ); ?>">
-						<?php esc_html_e( 'Enable California Tax Screen', 'tweaks-for-woo' ); ?>
-					</label>
-				</th>
-				<td>
-					<fieldset>
-						<legend class="description">
-							<?php echo wp_kses_post( __(
-								'When enabled, the California tax screen will be loaded in the admin view. Disable this to hide the California tax screen from administrators.',
-								'tweaks-for-woo'
-							) ); ?>
-						</legend>
-						<label>
-							<input type="hidden" name="<?php echo esc_attr( SettingsData::CA_TAX_SCREEN_KEY ); ?>" value="0" />
-							<input type="checkbox"
-								id="<?php echo esc_attr( SettingsData::CA_TAX_SCREEN_KEY ); ?>"
-								name="<?php echo esc_attr( SettingsData::CA_TAX_SCREEN_KEY ); ?>"
-								value="1"
-								<?php checked( $ca_enabled, true ); ?>
 							/>
 							<?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?>
 						</label>
