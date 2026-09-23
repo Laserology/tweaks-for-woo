@@ -45,7 +45,11 @@ class SettingsView {
 	 * Enqueue styles and scripts only for this plugin's settings tab.
 	 */
 	public static function enqueue_assets(): void {
-		if ( ! isset( $_GET['page'], $_GET['tab'] ) || 'wc-settings' !== $_GET['page'] || 'tweaks' !== $_GET['tab'] ) {
+		// Read-only check to decide whether to load assets; no form data is processed, so a nonce is not required.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET, no data processed.
+		$tab  = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : '';   // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET, no data processed.
+
+		if ( 'wc-settings' !== $page || 'tweaks' !== $tab ) {
 			return;
 		}
 
@@ -93,8 +97,8 @@ class SettingsView {
 	 * Render the Tweaks tab content inside WooCommerce → Settings.
 	 */
 	public static function render_tab(): void {
-		// Hide WooCommerce's own "Save changes" button; toggles auto-save via AJAX.
-		$GLOBALS['hide_save_button'] = true;
+		// WooCommerce core (WC_Admin_Settings::output()) checks this exact global to hide its own "Save changes" button.
+		$GLOBALS['hide_save_button'] = true; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global name is required by WooCommerce core.
 
 		$settings = array(
 			array(
@@ -113,10 +117,12 @@ class SettingsView {
 			),
 		);
 		?>
+
 		<div id="lstwc-settings-status" class="lstwc-status" role="status" aria-live="polite">
 			<span class="dashicons"></span>
 			<span class="lstwc-status__text"></span>
 		</div>
+
 		<!-- .wc-settings-prevent-change-event opts toggles out of WooCommerce's unsaved-changes warning; they auto-save. -->
 		<div class="lstwc-settings wc-settings-prevent-change-event">
 			<?php foreach ( $settings as $setting ) : ?>
@@ -143,6 +149,7 @@ class SettingsView {
 					</div>
 				</div>
 			<?php endforeach; ?>
+
 		</div>
 		<?php
 	}
