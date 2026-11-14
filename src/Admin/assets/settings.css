@@ -72,6 +72,29 @@
 	flex-grow: 1;
 }
 
+.lstwc-card--disabled {
+	opacity: 0.7;
+}
+
+.lstwc-card--disabled:hover {
+	border-color: var(--lstwc-border);
+	box-shadow: var(--lstwc-shadow);
+}
+
+.lstwc-card--disabled .lstwc-toggle {
+	cursor: not-allowed;
+}
+
+.lstwc-card__notice {
+	margin: -8px 0 18px;
+	padding: 8px 10px;
+	border-left: 3px solid #dba617;
+	background: #fcf9e8;
+	font-size: 12px;
+	line-height: 1.5;
+	color: #614f00;
+}
+
 .lstwc-card__footer {
 	display: flex;
 	align-items: center;
