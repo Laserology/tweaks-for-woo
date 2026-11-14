@@ -23,7 +23,12 @@ class Init {
 		add_action( 'admin_enqueue_scripts', array( \TweaksForWoo\Admin\SettingsView::class, 'enqueue_assets' ) );
 		add_action( 'wp_ajax_tweaks_for_woo_save', array( \TweaksForWoo\Admin\SettingsView::class, 'handle_ajax_save' ) );
 
-		// Conditionally load the location and billing tweaks based on settings.
+		// Warn when the optional tax service dependency is missing.
+		if ( ! \TweaksForWoo\TaxRates\TaxService::is_available() ) {
+			add_action( 'admin_notices', array( \TweaksForWoo\TaxRates\TaxService::class, 'dependency_notice' ) );
+		}
+
+		// Conditionally load the individual tweaks based on settings and dependencies.
 		self::maybe_load_tweaks();
 	}
 
@@ -69,7 +74,7 @@ class Init {
 	}
 
 	/**
-	 * Load the location and billing tweaks if their respective settings are enabled.
+	 * Load each tweak when its setting is enabled and its dependencies are met.
 	 */
 	private static function maybe_load_tweaks(): void {
 		if ( \TweaksForWoo\Admin\SettingsData::is_location_adjust_enabled() ) {
@@ -78,6 +83,15 @@ class Init {
 
 		if ( \TweaksForWoo\Admin\SettingsData::is_billing_tweak_enabled() ) {
 			add_action( 'woocommerce_new_order', array( __CLASS__, 'force_billing_address' ) );
+		}
+
+		// Tax rate filling needs the WooCommerce Tax service; do not register anything without it.
+		if ( \TweaksForWoo\Admin\SettingsData::is_force_rate_fill_enabled() && \TweaksForWoo\TaxRates\TaxService::is_available() ) {
+			\TweaksForWoo\TaxRates\TaxRateFiller::register();
+		}
+
+		if ( \TweaksForWoo\Admin\SettingsData::is_agent_orders_blocked() ) {
+			\TweaksForWoo\Api\AgentOrderListingGuard::register();
 		}
 	}
 

@@ -84,9 +84,21 @@ class SettingsView {
 	public static function handle_ajax_save(): void {
 		check_ajax_referer( 'tweaks_for_woo_save', 'nonce' );
 
-		$keys = array( SettingsData::BILLING_OPTION_KEY, SettingsData::LOCATION_TWEAK_KEY );
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( null, 403 );
+		}
+
+		$tax_service_available = \TweaksForWoo\TaxRates\TaxService::is_available();
+
+		$keys = array( SettingsData::ALWAYS_FILL_RATES_KEY, SettingsData::BILLING_OPTION_KEY, SettingsData::LOCATION_TWEAK_KEY, SettingsData::AGENT_ORDERS_KEY );
 		foreach ( $keys as $key ) {
 			$enabled = isset( $_POST[ $key ] ) && filter_var( wp_unslash( $_POST[ $key ] ), FILTER_VALIDATE_BOOLEAN );
+
+			// The tax service toggle is not available without the dependency; keep it off.
+			if ( SettingsData::ALWAYS_FILL_RATES_KEY === $key && ! $tax_service_available ) {
+				$enabled = false;
+			}
+
 			update_option( $key, $enabled );
 		}
 
@@ -100,13 +112,26 @@ class SettingsView {
 		// WooCommerce core (WC_Admin_Settings::output()) checks this exact global to hide its own "Save changes" button.
 		$GLOBALS['hide_save_button'] = true; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Global name is required by WooCommerce core.
 
+		$tax_service_available = \TweaksForWoo\TaxRates\TaxService::is_available();
+
 		$settings = array(
+			array(
+				'key'         => SettingsData::ALWAYS_FILL_RATES_KEY,
+				'icon'        => 'editor-table',
+				'title'       => __( 'Always fill tax rate table', 'tweaks-for-woo' ),
+				'description' => __( 'Fills the WooCommerce tax rate table from the WooCommerce Tax (TaxJar) service whenever an order is created or recalculated.', 'tweaks-for-woo' ),
+				'value'       => $tax_service_available && (bool) get_option( SettingsData::ALWAYS_FILL_RATES_KEY, true ),
+				'disabled'    => ! $tax_service_available,
+				'notice'      => $tax_service_available ? '' : __( 'Requires WooCommerce Tax (WooCommerce Shipping & Tax) to be installed and active.', 'tweaks-for-woo' ),
+			),
 			array(
 				'key'         => SettingsData::BILLING_OPTION_KEY,
 				'icon'        => 'admin-home',
 				'title'       => __( 'Apply Store Base Address to Blank Orders', 'tweaks-for-woo' ),
 				'description' => __( 'When enabled, orders created by administrators with blank billing/shipping addresses will be filled in with the store base address. Disable this to preserve blank addresses.', 'tweaks-for-woo' ),
 				'value'       => (bool) get_option( SettingsData::BILLING_OPTION_KEY, true ),
+				'disabled'    => false,
+				'notice'      => '',
 			),
 			array(
 				'key'         => SettingsData::LOCATION_TWEAK_KEY,
@@ -114,6 +139,17 @@ class SettingsView {
 				'title'       => __( 'Prevent price adjustment by location', 'tweaks-for-woo' ),
 				'description' => __( 'When enabled, WooCommerce will no longer change display prices if "show prices including tax" is enabled.', 'tweaks-for-woo' ),
 				'value'       => (bool) get_option( SettingsData::LOCATION_TWEAK_KEY, true ),
+				'disabled'    => false,
+				'notice'      => '',
+			),
+			array(
+				'key'         => SettingsData::AGENT_ORDERS_KEY,
+				'icon'        => 'shield',
+				'title'       => __( 'Block Internal Agent order access', 'tweaks-for-woo' ),
+				'description' => __( 'When enabled, the Internal Agent account cannot use the WooCommerce orders REST API. Disable this to allow it to list and manage orders again.', 'tweaks-for-woo' ),
+				'value'       => (bool) get_option( SettingsData::AGENT_ORDERS_KEY, true ),
+				'disabled'    => false,
+				'notice'      => '',
 			),
 		);
 		?>
@@ -126,7 +162,7 @@ class SettingsView {
 		<!-- .wc-settings-prevent-change-event opts toggles out of WooCommerce's unsaved-changes warning; they auto-save. -->
 		<div class="lstwc-settings wc-settings-prevent-change-event">
 			<?php foreach ( $settings as $setting ) : ?>
-				<div class="lstwc-card">
+				<div class="lstwc-card<?php echo $setting['disabled'] ? ' lstwc-card--disabled' : ''; ?>">
 					<div class="lstwc-card__header">
 						<div class="lstwc-card__icon">
 							<span class="dashicons dashicons-<?php echo esc_attr( $setting['icon'] ); ?>"></span>
@@ -134,6 +170,9 @@ class SettingsView {
 						<h3 class="lstwc-card__title"><?php echo esc_html( $setting['title'] ); ?></h3>
 					</div>
 					<p class="lstwc-card__description"><?php echo esc_html( $setting['description'] ); ?></p>
+					<?php if ( ! empty( $setting['notice'] ) ) : ?>
+						<p class="lstwc-card__notice"><?php echo esc_html( $setting['notice'] ); ?></p>
+					<?php endif; ?>
 					<div class="lstwc-card__footer">
 						<label class="lstwc-toggle" for="<?php echo esc_attr( $setting['key'] ); ?>">
 							<input type="hidden" name="<?php echo esc_attr( $setting['key'] ); ?>" value="0" />
@@ -142,6 +181,7 @@ class SettingsView {
 								name="<?php echo esc_attr( $setting['key'] ); ?>"
 								value="1"
 								<?php checked( $setting['value'], true ); ?>
+								<?php disabled( $setting['disabled'], true ); ?>
 							/>
 							<span class="lstwc-toggle__track" aria-hidden="true"></span>
 							<span class="lstwc-toggle__label"><?php esc_html_e( 'Enabled', 'tweaks-for-woo' ); ?></span>

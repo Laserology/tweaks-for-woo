@@ -8,12 +8,18 @@
  * Author: Laserology
  * Author URI: https://laserology.net/
  * Requires Plugins: woocommerce
+ * Requires PHP: 8.0
  * Text Domain: tweaks-for-woo
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+define( 'TWEAKS_FOR_WOO_VERSION', '1.0.0' );
+define( 'TWEAKS_FOR_WOO_FILE', __FILE__ );
+define( 'TWEAKS_FOR_WOO_PATH', plugin_dir_path( __FILE__ ) );
+define( 'TWEAKS_FOR_WOO_URL', plugin_dir_url( __FILE__ ) );
 
 // Require PHP 8.0+ for modern syntax support (match expressions, typed arrow functions).
 if ( version_compare( PHP_VERSION, '8.0', '<' ) ) {
@@ -33,14 +39,15 @@ class LSTWC {
 	 * Init and hook in the integration.
 	 */
 	public function __construct() {
-		require_once plugin_dir_path( __FILE__ ) . 'src/Init.php';
+		require_once TWEAKS_FOR_WOO_PATH . 'src/Init.php';
 		\TweaksForWoo\Init::boot();
 	}
 }
 
 // Initialize the plugin (if it exists)
 if ( class_exists( 'LSTWC' ) ) {
+	// Run late so WooCommerce (and the WooCommerce Tax service) have loaded their classes.
 	add_action( 'plugins_loaded', function() {
 		new LSTWC();
-	} );
+	}, 20 );
 }
